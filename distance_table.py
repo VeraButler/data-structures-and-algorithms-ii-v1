@@ -61,7 +61,7 @@ for row in dist_tbl_hash:
         if c is "(":
             # https://guide.freecodecamp.org/python/is-there-a-way-to-substring-a-string-in-python/
             # clean the street address of it's zipcode
-            street_address = s[1:(i-1)]
+            street_address = s[1:(i)]
             row[2] = street_address
             address_hash.append([row[0], street_address])
             # print(address_hash)
@@ -124,13 +124,18 @@ def build_bidirectional_distance_graph():
     #       delete address in each row
     #       key:value pairs for address_id:mileage
     for row in new_dist_graph:
+        row[0] = row[0] - 1
         del row[1]
     for i, row in enumerate(new_dist_graph):
-        del row[1]
         for j, el in enumerate(row):
-            if j > 0:
-                row[j] = (j, el)
-
+            if j > 1:
+                row[j] = (j-2, float(el))
+        prepare_row_for_sort = row[2::]
+        save_row = [row[0], row[1]]
+        prepare_row_for_sort.sort(key=lambda x: x[1])
+        save_row.append(prepare_row_for_sort)
+        print(save_row)
+        new_dist_graph[i] = save_row
     return new_dist_graph
 # build_bidirectional_distance_graph()
 
@@ -138,12 +143,38 @@ def build_bidirectional_distance_graph():
 # set dist_tbl_hash to new bidirectional graph
 dist_tbl_hash = build_bidirectional_distance_graph()
 
+def get_distances_from_hub():
+    '''
+
+    creates a list of distances in
+        key:value pairs of address_id:miles_from_hub
+    these key:value pairs will be used to insert into a circular route
+    the packages with address ids closest to the hub will be inserted into to the
+     beginning and end of the best_route array
+
+    '''
+    disances_from_hub = []
+    for d in dist_tbl_hash:
+        for distances in d[1:]:
+            address_id = distances[0][0]
+            for pairs in distances:
+                if pairs[0] == 0:
+                    hub = pairs
+        disances_from_hub.append((address_id, hub[1]))
+    # remove hub
+    disances_from_hub.pop(0)
+    disances_from_hub.sort(key=lambda x: x[1])
+    return disances_from_hub
+
+
+print(get_distances_from_hub())
+
 
 # print entire dist_table_hash
 def print_dist_table_hash():
     for i, d in enumerate(dist_tbl_hash):
         print('f', dist_tbl_hash[i])
-print_dist_table_hash()
+# print_dist_table_hash()
 
 # print key:address list
 def print_address_keys():
