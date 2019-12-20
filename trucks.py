@@ -15,6 +15,7 @@
 
 # imports
 from package_info import *
+from graph import g
 
 
 class Truck:
@@ -52,7 +53,6 @@ class Truck:
 
 
 T1 = Truck()
-print(p1)
 T1.add_package(p1.package_info_list)
 print(T1.all_package_info)
 # T1.add_package()

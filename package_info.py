@@ -1,7 +1,7 @@
 import csv
 from typing import List, Any
 
-pkgFile = '../WGUPS Package File.csv'
+pkgFile = './WGUPS Package File.csv'
 
 # https://stackoverflow.com/questions/34008527/csv-in-hashtable-then-calculate-sum
 # https://docs.python.org/3/library/csv.html
@@ -52,7 +52,8 @@ def add_package_to_list(pkg_id, address, deadline, city, state,
         else:
             print("Package already exists.")
 
-# inlcude package list to make this class work for future additions of packages
+
+# include package list to make this class work for future additions of packages
 class Package:
     # init class
     def __init__(self, package_list, package_key):

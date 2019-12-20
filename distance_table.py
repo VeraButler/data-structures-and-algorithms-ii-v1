@@ -144,7 +144,7 @@ def build_bidirectional_distance_graph():
 dist_tbl_hash = build_bidirectional_distance_graph()
 
 def get_distances_from_hub():
-    '''
+    """
 
     creates a list of distances in
         key:value pairs of address_id:miles_from_hub
@@ -152,7 +152,7 @@ def get_distances_from_hub():
     the packages with address ids closest to the hub will be inserted into to the
      beginning and end of the best_route array
 
-    '''
+    """
     disances_from_hub = []
     for d in dist_tbl_hash:
         for distances in d[1:]:
