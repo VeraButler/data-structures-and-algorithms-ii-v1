@@ -11,8 +11,6 @@ pkgFile = './WGUPS Package File.csv'
 # hash is the package_id at index 0 of each row
 # PART E: Develop a hash table
 pkg_tbl_hash = []
-# list to hold all Packages created
-master_package_list = []
 with open(pkgFile) as pf:
     reader = csv.reader(pf)
     line_number = 0
@@ -53,7 +51,23 @@ def add_package_to_list(pkg_id, address, deadline, city, state,
             print("Package already exists.")
 
 
-# include package list to make this class work for future additions of packages
+# list for delivery deadlines
+packages_with_delivery_deadlines = ["Delivery Deadlines"]
+packages_without_delivery_deadlines = ["No Delivery Deadline"]
+
+# list of packages with special notes
+packages_with_special_notes = ["Special Notes"]
+naked_packages = ["No Special Needs"]
+
+# separate lists for packages with special notes
+delayed_flight = ["Delayed Flights"]
+truck_one_only = ["Load on this Truck one only"]
+truck_two_only = ["Load on this Truck two only"]
+truck_three_only = ["Load on this Truck two only"]
+wrong_address = ["Wrong Address"]
+
+
+# inlcude package list to make this class work for future additions of packages
 class Package:
     # init class
     def __init__(self, package_list, package_key):
@@ -77,9 +91,63 @@ class Package:
         self.package_weight = self.package_info_list[6]
         self.delivery_status = self.package_info_list[7]
         self.special_notes = self.package_info_list[8]
+        self.required_truck = ''
+
+        if self.delivery_deadline != 'EOD':
+            packages_with_delivery_deadlines.append([self.package_id_number, self.delivery_deadline])
+        else:
+            packages_without_delivery_deadlines.append([self.package_id_number, self.delivery_deadline])
+
+        if self.special_notes:
+            packages_with_special_notes.append([self.package_id_number, self.special_notes])
+
+        # sort to correct special notes list and load onto appropriate trucks
+        p_id = self.package_id_number
+        s = self.special_notes
+        if 'Can only be on truck' in s:
+            # split special note for iterable string
+            split = s.split()
+            # iterate through string, check for int
+            for i in split:
+                if i.isdigit():
+                    # initiate and set truck number
+                    truck_number = i
+            # append package id and truck number to can only be on truck N
+            #  T is for Truck - Trucks are created as T1...TN
+            truck = 'T' + str(truck_number)
+            self.required_truck = truck
+            # load package to correct truck
+            # if trucks are added in the future this will need to be edited
+            # if truck is not at the HUB then add to a waiting list this_truck_only
+            if truck is 'T1':
+                truck_one_only.append([p_id, truck])
+            elif truck == 'T2':
+                truck_two_only.append([p_id, truck])
+            elif truck == 'T3':
+                truck_three_only.append([p_id, truck])
+            else:
+                print("Truck does not exist. Check your truck string.")
+
+        # check delayed package info
+        if 'Delayed' in s:
+            delayed_flight.append([p_id, s])
+
+        # check for wrong address info
+        if 'Wrong address' in self.special_notes:
+            wrong_address.append([p_id, s])
+
+        # add packages with no delivery deadline or special notes to a list
+        #   the packages in this list will be added last to fill the remaining spots in the trucks
+        no_deadline = False
+        for i in packages_without_delivery_deadlines[1:]:
+            if p_id == i[0]:
+                no_deadline = True
+        # if no deadline is true and special notes do not exist add to no special needs packages list
+        if no_deadline and not s:
+            naked_packages.append(p_id)
 
     def info(self):
-        return '''
+        info = '''
         Package Id Number: {}
         Delivery Address: {}
         Delivery Deadline: {}
@@ -92,6 +160,7 @@ class Package:
         '''.format(self.package_id_number, self.delivery_address, self.delivery_deadline, self.delivery_city,
                    self.delivery_state, self.delivery_zip_code, self.package_weight, self.delivery_status,
                    self.special_notes)
+        return info
 
 
 # create all packages
@@ -136,5 +205,13 @@ p38 = Package(pkg_tbl_hash, 38)
 p39 = Package(pkg_tbl_hash, 39)
 p40 = Package(pkg_tbl_hash, 40)
 
+# print(packages_with_delivery_deadlines)
+# print(packages_without_delivery_deadlines)
+# print(packages_with_special_notes)
+# print(naked_packages)
+# print(delayed_flight)
+# print(this_truck_only)
+# print(wrong_address)
+# print(pkg_tbl_hash)
 
 
