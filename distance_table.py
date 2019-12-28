@@ -167,7 +167,7 @@ def get_distances_from_hub():
     return disances_from_hub
 
 
-print(get_distances_from_hub())
+# print(get_distances_from_hub())
 
 
 # print entire dist_table_hash
