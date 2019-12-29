@@ -56,6 +56,7 @@ class Truck:
         self.mileage = 0
 
     def add_package(self, list_name, package_id):
+        # print('package id', package_id)
         # find complete package information
         # check for full truck, if not full then add package_info to truck
         if self.number_of_packages < 16 and package_id not in self.all_package_info:
@@ -63,8 +64,14 @@ class Truck:
             # append package to package info
             self.all_package_info.append(package_id)
             loaded_packages.append(package_id)
+            # pop package from master package list
+            if package_id in package_info.master_package_id_list:
+                package_info.master_package_id_list.remove(package_id)
+
+        else:
+            self.full_truck = True
         # else the truck is full, set boolean full_truck to True
-        elif self.full_truck is True:
+        if self.full_truck is True:
             #  Truck is full. Fill next truck.
             print("Truck is full.")
 
@@ -77,20 +84,24 @@ class Truck:
             print('Loading truck....')
             for package in package_list[1:]:
                 if self.full_truck is True:
-                    print("Truck is full. These packages remain: ", package_list)
-                    break
-                if isinstance(package, list) and self.full_truck is False:
-                    self.add_package(list_name, package[0])
-                else:
-                    self.add_package(list_name, package)
+                    return
+                if package in package_info.master_package_id_list:
+                    if isinstance(package, list) and self.full_truck is False:
+                        package_id = package[0]
+                        self.add_package(list_name, package_id)
+                        package_list.remove(package)
+                    else:
+                        package_id = package
+                        self.add_package(list_name, package_id)
 
     def route(self, start_vertex, package_list):
+        if not package_list:
+            return
         # Put all vertices in an unvisited queue.
         unvisited_queue = []
         # vertex_id = g.sorted_bidirectional[start_vertex][0]
         # set package list to address list
         package_list = find_address_list(package_list, package_info.pkg_tbl_hash)
-        print(package_list)
         # build a list of address ids to track unvisited package locations
         for vertex in g.sorted_bidirectional:
             for p in package_list:
@@ -98,8 +109,7 @@ class Truck:
                     unvisited_queue.append(p[1])
 
         route = []
-        miles = 0
-        while len(unvisited_queue) > 1:
+        while len(unvisited_queue) > 0:
             """ 
             sorted_bidirectional's second element is a list of tuples with distances by location in ascending order
               elements 1 & 2 [vertex_id, 'address_string', ->
@@ -117,8 +127,10 @@ class Truck:
                             address_id = p[1]
                             # print('pkg list', package_list)
                             # print('if p adn v', g.sorted_bidirectional[start_vertex][2])
-                            smallest_index = g.sorted_bidirectional[start_vertex][2][address_id][0]
+                            # print('address_id', address_id)
+                            smallest_index = g.sorted_bidirectional[start_vertex][2].index(vertex)
                             self.mileage += g.sorted_bidirectional[start_vertex][2][address_id][1]
+                            # print('smllindex', smallest_index)
                             # print('round 1 miles', smallest_index, self.mileage)
                             # deliver package
                             delivered_packages.append(p[0])
@@ -127,8 +139,12 @@ class Truck:
                     if flag:
                         break
                 # print(smallest_index)
-                route.append(unvisited_queue.pop(smallest_index))
-                next_vertex = g.sorted_bidirectional[smallest_index][2]
+                # print('smallest index', smallest_index)
+                # print('univisted q', unvisited_queue)
+                unvisited_queue.remove(address_id)
+                route.append(address_id)
+                next_vertex = g.sorted_bidirectional[address_id][2]
+                # print('9 next', next_vertex)
                 start_vertex = 1
 
 
@@ -141,17 +157,14 @@ class Truck:
             # If shorter path from start_vertex to adj_vertex is found,
             # update adj_vertex's distance and predecessor
             # print('next miles', g.sorted_bidirectional[next_vertex][2])
-            adj_vertex = smallest_index
             for vertex in next_vertex:
                 if vertex[0] in unvisited_queue and vertex[0] != 0 and vertex[1] != 0.0:
+                    # print('adj vertex', vertex)
                     adj_vertex = vertex[0]
                     edge_weight = vertex[1]
                     # print(next_vertex)
                     # print(adj_vertex, edge_weight)
                     self.mileage += edge_weight
-                    # print(adj_vertex, edge_weight)
-                    # alternative_path_distance = next_vertex + edge_weight
-                    # print(vertex, alternative_path_distance)
 
                     # deliver package
                     for p in package_list:
@@ -159,12 +172,15 @@ class Truck:
                             package_list.remove(p)
                             delivered_packages.append(p[0])
                     break
+
+            # print('adj_vertex', adj_vertex)
+            # print('index', unvisited_queue.index(adj_vertex))
             route.append(unvisited_queue.pop(unvisited_queue.index(adj_vertex)))
             next_vertex = g.sorted_bidirectional[adj_vertex][2]
 
         # go back to hub - use adjacency list which is just a list of the miles in order of location id
         # print(g.adjacency_list[0][adj_vertex])
-        print('packages remaining', package_list)
+        # print('packages remaining', package_list)
         self.mileage += float(g.adjacency_list[0][adj_vertex])
         # print(route)
         # print(miles)
@@ -183,7 +199,7 @@ def find_address_list(packages_list, address_list):
     # find address id for package
     #  if package id == package address id
     # todo why are the packages at certain locations not delivered
-    #  the delivered packages do not match up with the remaining packages list
+    #  the delivered packages do not match up with the remianing packages list
     for a in address_list:
         # print('a', a)
         # find address id and save it to a variable
@@ -202,7 +218,7 @@ def find_address_list(packages_list, address_list):
                     temp_list.append([a[0], address_id, a[1]])
                     if p[0] not in address_for_package_found:
                         address_for_package_found.append(int(p[0]))
-            if type(p) == int:
+            elif type(p) == int:
                 # print('int')
                 # print('ptype', type(p))
                 # print('a', a)
@@ -210,6 +226,8 @@ def find_address_list(packages_list, address_list):
                     temp_list.append([a[0], address_id, a[1]])
                     if p not in address_for_package_found:
                         address_for_package_found.append(int(p))
+            else:
+                print('cannot find address of package', p)
 
 
 
@@ -270,12 +288,15 @@ T2.load_truck((package_info.truck_two_only)) # 4 packages - 2, 18, 36, 38
 T2.load_truck(package_info.delayed_flight) # 4 packages - 6, 25, 28, 32
 T2.load_truck(package_info.wrong_address) # 1 package - 9
 T2.load_truck(package_info.naked_packages) # until full
+T2.load_truck(package_info.master_package_id_list)
 print('find route 2', T2.route(0, T2.all_package_info))
 
 
 # Truck 3
 T3.load_truck(package_info.naked_packages)
 T3.load_truck(package_info.packages_without_delivery_deadlines)
+T3.load_truck(package_info.packages_with_delivery_deadlines)
+T3.load_truck(package_info.master_package_id_list)
 print('find route 3', T3.route(0, T3.all_package_info))
 
 # total miles for all 3 trucks
@@ -283,23 +304,23 @@ total_miles = T1.mileage + T2.mileage + T3.mileage
 print('total', total_miles)
 
 # check for any missed packages
-temp_list = []
-for i in range(40):
-    if i not in delivered_packages:
-        temp_list.append(i + 1)
-print('t', temp_list)
+# temp_list = []
+# for i in range(40):
+#     if i not in delivered_packages:
+#         temp_list.append(i + 1)
+# print('t', temp_list)
+#
+# loaded_packages.sort()
+# print('loaded', loaded_packages)
+# address_for_package_found.sort()
+# print('address list from find_address()', address_for_package_found)
+# T3.load_truck(temp_list)
 
-loaded_packages.sort()
-print('loaded', loaded_packages)
-address_for_package_found.sort()
-print('address list from find_address()', address_for_package_found)
-T3.load_truck(temp_list)
-
-temp_list = []
-for i in range(40):
-    if i not in delivered_packages:
-        temp_list.append(i + 1)
-print('t', temp_list)
+# temp_list = []
+# for i in range(40):
+#     if i not in delivered_packages:
+#         temp_list.append(i + 1)
+# print('t', temp_list)
 
 # check = [package_info.packages_with_delivery_deadlines, package_info.packages_without_delivery_deadlines, package_info.truck_two_only,
 #          package_info.wrong_address, package_info.naked_packages, package_info.delayed_flight, package_info.delivery_deadline]

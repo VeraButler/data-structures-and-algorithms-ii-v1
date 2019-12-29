@@ -66,6 +66,9 @@ truck_two_only = ["Load on this Truck two only"]
 truck_three_only = ["Load on this Truck two only"]
 wrong_address = ["Wrong Address"]
 
+# master package id list
+master_package_id_list = []
+
 
 # inlcude package list to make this class work for future additions of packages
 class Package:
@@ -146,6 +149,8 @@ class Package:
         if no_deadline and not s:
             naked_packages.append(p_id)
 
+        master_package_id_list.append(self.package_id_number)
+
     def info(self):
         info = '''
         Package Id Number: {}
@@ -205,13 +210,15 @@ p38 = Package(pkg_tbl_hash, 38)
 p39 = Package(pkg_tbl_hash, 39)
 p40 = Package(pkg_tbl_hash, 40)
 
-print(len(packages_with_delivery_deadlines), packages_with_delivery_deadlines)
-print(packages_without_delivery_deadlines)
-print(packages_with_special_notes)
-print(naked_packages)
-print(delayed_flight)
+# print(len(packages_with_delivery_deadlines), packages_with_delivery_deadlines)
+# print(packages_without_delivery_deadlines)
+# print(packages_with_special_notes)
+# print(naked_packages)
+# print(delayed_flight)
 # print(this_truck_only)
-print(wrong_address)
-print(pkg_tbl_hash)
+# print(wrong_address)
+# print(pkg_tbl_hash)
+# print(master_package_id_list)
+
 
 
