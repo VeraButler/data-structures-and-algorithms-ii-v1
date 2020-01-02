@@ -221,4 +221,26 @@ p40 = Package(pkg_tbl_hash, 40)
 # print(master_package_id_list)
 
 
+# find packages with the same delivery address
+# same_delivery_address = []
+# found_package_list = []
+# for p in pkg_tbl_hash:
+#     name = p[1]
+#     if [name] not in same_delivery_address:
+#         same_delivery_address.append([name])
+# for a in pkg_tbl_hash:
+#     package_id = a[0]
+#     for p in same_delivery_address:
+#         if p[0] == a[1]:
+#             if package_id not in found_package_list:
+#                 found_package_list.append(package_id)
+#                 p.append(package_id)
+# for s in same_delivery_address:
+#     print(s)
+
+
+
+
+
+
 

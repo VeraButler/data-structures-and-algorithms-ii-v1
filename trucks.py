@@ -105,8 +105,8 @@ class Truck:
         # build a list of address ids to track unvisited package locations
         for vertex in g.sorted_bidirectional:
             for p in package_list:
-                if p[1] == vertex[0]:
-                    unvisited_queue.append(p[1])
+                if p[0] == vertex[0]:
+                    unvisited_queue.append(p[0])
 
         route = []
         while len(unvisited_queue) > 0:
@@ -122,9 +122,8 @@ class Truck:
                 flag = False
                 for vertex in g.sorted_bidirectional[start_vertex][2]:
                     for p in package_list:
-                        if p[1] == vertex[0]:
-                            package_id = p[0]
-                            address_id = p[1]
+                        if p[0] == vertex[0]:
+                            address_id = p[0]
                             # print('pkg list', package_list)
                             # print('if p adn v', g.sorted_bidirectional[start_vertex][2])
                             # print('address_id', address_id)
@@ -133,7 +132,7 @@ class Truck:
                             # print('smllindex', smallest_index)
                             # print('round 1 miles', smallest_index, self.mileage)
                             # deliver package
-                            delivered_packages.append(p[0])
+                            delivered_packages.append(p[2])
                             flag = True
                             break
                     if flag:
@@ -168,9 +167,11 @@ class Truck:
 
                     # deliver package
                     for p in package_list:
-                        if p[1] == adj_vertex:
+                        if p[0] == adj_vertex:
+                            print('p in package list', p)
                             package_list.remove(p)
-                            delivered_packages.append(p[0])
+                            for package in p[2:]:
+                                delivered_packages.append(package)
                     break
 
             # print('adj_vertex', adj_vertex)
@@ -195,7 +196,7 @@ T3 = Truck('T3')
 
 
 def find_address_list(packages_list, address_list):
-    temp_list = []
+    address_bucket_list = []
     # find address id for package
     #  if package id == package address id
     # todo why are the packages at certain locations not delivered
@@ -209,13 +210,14 @@ def find_address_list(packages_list, address_list):
                 address_id = d[0]
                 # print('address id', address_id)
                 break
+        print('packages_list', packages_list)
         for p in packages_list:
             if type(p) is list:
                 # print('list')
                 if a[0] is p[0]:
                     # a[0] is address id from master address list
                     # a[1] is the address string 'XXX street name' correlated with the address id
-                    temp_list.append([a[0], address_id, a[1]])
+                    address_bucket_list.append([a[0], address_id, a[1]])
                     if p[0] not in address_for_package_found:
                         address_for_package_found.append(int(p[0]))
             elif type(p) == int:
@@ -223,7 +225,7 @@ def find_address_list(packages_list, address_list):
                 # print('ptype', type(p))
                 # print('a', a)
                 if a[0] is p:
-                    temp_list.append([a[0], address_id, a[1]])
+                    address_bucket_list.append([a[0], address_id, a[1]])
                     if p not in address_for_package_found:
                         address_for_package_found.append(int(p))
             else:
@@ -231,21 +233,25 @@ def find_address_list(packages_list, address_list):
 
 
 
-    # todo group packages into bucket list by location:
-    # grouped_by_address = []
-    #
-    # for i, p in enumerate(temp_list):
-    #     # print('address for package found', address_for_package_found)
-    #     # print('p', p)
-    #     for a in p:
-    #         if a in address_for_package_found:
-    #             grouped_by_address.append(a)
-    #             address_for_package_found.remove(int(a))
-    #             break
-    #     grouped_by_address.append(1)
-    #     # print('temp list', temp_list)
-    #     # print('grouped', grouped_by_address)
-    return temp_list
+    # todo group packages into bucket list by locations
+    # find packages with the same delivery address
+    same_delivery_address = []
+    found_package_list = []
+    for p in address_bucket_list:
+        name = p[2]
+        address_id = p[1]
+        if [address_id, name] not in same_delivery_address:
+            same_delivery_address.append([address_id, name])
+    for a in address_bucket_list:
+        package_id = a[0]
+        for p in same_delivery_address:
+            if p[1] == a[2]:
+                if package_id not in found_package_list:
+                    found_package_list.append(package_id)
+                    p.append(package_id)
+    for s in same_delivery_address:
+        print('same', s)
+    return same_delivery_address
 
 
 # load trucks
@@ -302,6 +308,12 @@ print('find route 3', T3.route(0, T3.all_package_info))
 # total miles for all 3 trucks
 total_miles = T1.mileage + T2.mileage + T3.mileage
 print('total', total_miles)
+
+# print delivered packages asc
+delivered_packages.sort()
+print(delivered_packages)
+address_for_package_found.sort()
+print(address_for_package_found)
 
 # check for any missed packages
 # temp_list = []
