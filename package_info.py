@@ -1,4 +1,5 @@
 import csv
+from distance_table import address_hash
 from typing import List, Any
 
 pkgFile = './WGUPS Package File.csv'
@@ -35,22 +36,6 @@ with open(pkgFile) as pf:
 # print(pkg_tbl_hash)
 
 
-def add_package_to_list(pkg_id, address, deadline, city, state,
-                        zip_code, weight, status, notes):
-    package_info_list = [pkg_id, address, deadline, city, state, zip_code, weight, status, notes]
-
-    # special case for first package
-    if not master_package_list:
-        master_package_list.append(package_info_list)
-        print("Package added successfully")
-    else:
-        if not master_package_list[package_id_number]:
-            master_package_list.append(package_info_list)
-            print("Package added successfully")
-        else:
-            print("Package already exists.")
-
-
 # list for delivery deadlines
 packages_with_delivery_deadlines = ["Delivery Deadlines"]
 packages_without_delivery_deadlines = ["No Delivery Deadline"]
@@ -69,11 +54,15 @@ wrong_address = ["Wrong Address"]
 # master package id list
 master_package_id_list = []
 
+# master package list - p1...pN memory addresses to be accessed in trucks.py
+master_package_list = []
+
 
 # inlcude package list to make this class work for future additions of packages
 class Package:
     # init class
     def __init__(self, package_list, package_key):
+        master_package_list.append(self)
         # assign values to class properties
         # individual package information list
         self.package_info_list = package_list[package_key - 1]
@@ -88,13 +77,26 @@ class Package:
         self.address_id = -1
         # print(self.delivery_address)
         self.delivery_deadline = self.package_info_list[2]
+        self.delivery_time = ''
         self.delivery_city = self.package_info_list[3]
         self.delivery_state = self.package_info_list[4]
         self.delivery_zip_code = self.package_info_list[5]
         self.package_weight = self.package_info_list[6]
-        self.delivery_status = self.package_info_list[7]
+        self.delivery_status = 'at hub'
         self.special_notes = self.package_info_list[8]
         self.required_truck = ''
+
+        # find address id
+        for a in address_hash:
+            if a[1] == self.delivery_address:
+                self.address_id = a[0]
+                break
+        if self.address_id is -1:
+            self.address_id = 23
+
+
+            # else:
+            #     print(self.package_id_number, 'cannot find address id')
 
         if self.delivery_deadline != 'EOD':
             packages_with_delivery_deadlines.append([self.package_id_number, self.delivery_deadline])
@@ -104,7 +106,7 @@ class Package:
         if self.special_notes:
             packages_with_special_notes.append([self.package_id_number, self.special_notes])
 
-        # sort to correct special notes list and load onto appropriate trucks
+        # place package into correct special notes list to be loaded onto appropriate trucks in trucks.py
         p_id = self.package_id_number
         s = self.special_notes
         if 'Can only be on truck' in s:
@@ -219,24 +221,8 @@ p40 = Package(pkg_tbl_hash, 40)
 # print(wrong_address)
 # print(pkg_tbl_hash)
 # print(master_package_id_list)
+# print(p22.package_id_number, p22.address_id, p22.delivery_address)
 
-
-# find packages with the same delivery address
-# same_delivery_address = []
-# found_package_list = []
-# for p in pkg_tbl_hash:
-#     name = p[1]
-#     if [name] not in same_delivery_address:
-#         same_delivery_address.append([name])
-# for a in pkg_tbl_hash:
-#     package_id = a[0]
-#     for p in same_delivery_address:
-#         if p[0] == a[1]:
-#             if package_id not in found_package_list:
-#                 found_package_list.append(package_id)
-#                 p.append(package_id)
-# for s in same_delivery_address:
-#     print(s)
 
 
 

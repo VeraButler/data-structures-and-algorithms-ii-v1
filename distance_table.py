@@ -53,7 +53,7 @@ for row in dist_tbl_hash:
         del row[0]
         street_address = "4001 South 700 East"
         row[0][1] = street_address
-        address_hash.append([1, street_address])
+        address_hash.append([0, street_address])
     s = str(row[2])
     # https://stackoverflow.com/questions/10059554/inserting-characters-at-the-start-and-end-of-a-string
     street_address = ""
@@ -63,7 +63,7 @@ for row in dist_tbl_hash:
             # clean the street address of it's zipcode
             street_address = s[1:(i)]
             row[2] = street_address
-            address_hash.append([row[0], street_address])
+            address_hash.append([row[0] - 1, street_address])
             # print(address_hash)
             break
     # build distances_graph
@@ -217,82 +217,6 @@ def build_shortest_dists_graph(dist_graph):
     return shortest_dists
 
 
-# nearest neighbor algorithm
-
-# initialize and set empty visited locations list
-visited_locations = []
-# initialize and set empty closest location
-current_location = 1
-count = 0
-# find the package with the closest location relative to current location
-def find_next_location(address_list, location, count):
-    # build graph of shortest distance in ascending order
-    shortest_dists = build_shortest_dists_graph(distances.distances)
-    # go to first address from HUB
-    # find any package(s) with address ID 21
-    distance_driven = 0
-    next_location = -1
-    # define and set counter
-    # todo test for accuracy
-    for p in address_list:
-        # p[0] is package id
-        pkg_id = p[0]
-        # p[1] is location id
-        p_del_id = p[1]
-        # find the nearest neighbor
-        next_location = shortest_dists[0][1][0]
-        # keep track of visited locations with an array
-        visited_locations.append(shortest_dists[0][1][0])
-        # the next location id that is not 1 in the list
-        if location is 1:
-            print('if1')
-            print('  c', count)
-            # find the shortest distance from the current location
-            shortest_dist_miles = shortest_dists[location][count][1]
-            distance_driven += float(shortest_dist_miles)
-            print("  if1-sd1:", shortest_dist_miles)
-        # all other locations besides the HUB (address_id 1)
-        if location is not 1:
-            print('if2')
-            print('  c', count)
-            shortest_dist_miles = shortest_dists[next_location][count][1][1]
-            print("  if2-sd2:", shortest_dist_miles)
-            if count is 2:
-                print('  if-if')
-                distance_driven = distance_driven + float(shortest_dist_miles)
-            else:
-                print('  if - else :', shortest_dist_miles)
-                distance_driven = distance_driven + float(shortest_dist_miles[1])
-                print("  dist driven: ", distance_driven)
-        print("sd2outer:", shortest_dist_miles)
-        curr_location = next_location
-        get_distance_to_closest_location(address_list, curr_location, count)
-        next_location = shortest_dists[curr_location][1][0]
-
-    return next_location
-
-
-
-# time to get to location (18mi/hr)
-#  todo fix me
-def get_time_to_location(miles):
-    miles_per_hour = 18
-    minutes_per_hour = 60
-    seconds_per_minute = 60
-    distance = miles
-    time = miles/18
-    return time
-
-
-def get_distance_to_closest_location(dist_graph, location, count):
-    count = count + 1
-    # current_location = 1
-    # print("distg:", dist_graph)
-    # print("alist:", address_ids_list)
-    # find next closest location
-    closest_location = find_next_location(address_ids_list, location, count)
-    # calculate time to get there
-    print("c", closest_location)
 
 
 # print_street_address_only()
