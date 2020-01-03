@@ -78,6 +78,7 @@ class Package:
         self.delivery_status = 'at hub'
         self.special_notes = self.package_info_list[8]
         self.required_truck = ''
+        self.loaded_on_truck = ''
 
         # find address id
         for a in address_hash:
@@ -147,15 +148,17 @@ class Package:
         Package Id Number: {}
         Delivery Address: {}
         Delivery Deadline: {}
+        Delivery Time: {}
         Delivery City: {}
         Delivery State: {}
         Delivery Zip Code: {}
         Package Weight: {}
         Delivery Status: {}
+        Loaded on Truck Number: {}
         Special Notes: {}
-        '''.format(self.package_id_number, self.delivery_address, self.delivery_deadline, self.delivery_city,
-                   self.delivery_state, self.delivery_zip_code, self.package_weight, self.delivery_status,
-                   self.special_notes)
+        '''.format(self.package_id_number, self.delivery_address, self.delivery_deadline, self.delivery_time,
+                   self.delivery_city, self.delivery_state, self.delivery_zip_code, self.package_weight,
+                   self.delivery_status, self.loaded_on_truck, self.special_notes)
         return info
 
 

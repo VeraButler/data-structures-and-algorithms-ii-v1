@@ -66,7 +66,7 @@ class Truck:
 
     # time to get to location (18mi/hr)
     #  todo fix me
-    def add_to_delivery_time(self, miles):
+    def set_delivery_time(self, miles):
 
         # calculate time
         frac, whole = math.modf(miles / self.average_speed)
@@ -95,6 +95,8 @@ class Truck:
             if package_id in package_info.master_package_id_list:
                 package_index = package_id - 1
                 package_memory_address = package_info.master_package_list[package_index]
+                # set loaded_on_truck for package
+                package_memory_address.loaded_on_truck = self.name
                 # append package to package info
                 self.all_package_info.append(package_memory_address)
                 loaded_packages.append(package_id)
@@ -116,15 +118,16 @@ class Truck:
                 for package in package_list[1:]:
                     if self.full_truck is True:
                         return
-                    if isinstance(package, list) and self.full_truck is False:
-                        package_id = package[0]
-                        if package_id in package_info.master_package_id_list:
-                            self.add_package(package_id)
-                            package_list.remove(package)
-                    else:
-                        package_id = package
-                        if package_id in package_info.master_package_id_list:
-                            self.add_package(package_id)
+                    if self.full_truck is False:
+                        if isinstance(package, list):
+                            package_id = package[0]
+                            if package_id in package_info.master_package_id_list:
+                                self.add_package(package_id)
+                                package_list.remove(package)
+                        else:
+                            package_id = package
+                            if package_id in package_info.master_package_id_list:
+                                self.add_package(package_id)
 
     def route(self, start_vertex, package_list):
         if not package_list:
@@ -173,9 +176,9 @@ class Truck:
                             # deliver package
                             delivered_packages.append(p[2].package_id_number)
                             p[2].delivery_status = 'delivered'
-                            flag = True
                             if p[2].delivery_status is 'delivered':
-                                p[2].delivery_time = self.add_to_delivery_time(self.mileage)
+                                p[2].delivery_time = self.set_delivery_time(self.mileage)
+                            flag = True
                             break
                     if flag:
                         break
@@ -193,14 +196,10 @@ class Truck:
             # Check potential path lengths from the current vertex to all neighbors.
             # If shorter path from start_vertex to adj_vertex is found,
             # update adj_vertex's distance and predecessor
-            # print('next miles', g.sorted_bidirectional[next_vertex][2])
             for vertex in next_vertex:
                 if vertex[0] in unvisited_queue and vertex[0] != 0 and vertex[1] != 0.0:
-                    # print('adj vertex', vertex)
                     adj_vertex = vertex[0]
                     miles = vertex[1]
-                    # print(next_vertex)
-                    # print(adj_vertex, edge_weight)
                     self.mileage += float(miles)
                     # deliver package
                     for p in package_list:
@@ -208,8 +207,8 @@ class Truck:
                             for package in p[2:]:
                                 delivered_packages.append(package.package_id_number)
                                 package.delivery_status = 'delivered'
-                                if p[2].delivery_status is 'delivered':
-                                    p[2].delivery_time = self.add_to_delivery_time(self.mileage)
+                                if package.delivery_status is 'delivered':
+                                    package.delivery_time = self.set_delivery_time(self.mileage)
                             package_list.remove(p)
                     break
             route.append(unvisited_queue.pop(unvisited_queue.index(adj_vertex)))
@@ -223,7 +222,7 @@ class Truck:
             if location_id == last_index_in_route:
                 self.mileage += float(miles_for_current_vertex)
                 route.append(0)
-        self.delivery_time = self.add_to_delivery_time(self.mileage)
+        self.delivery_time = self.set_delivery_time(self.mileage)
         return route
 
 
@@ -256,8 +255,6 @@ def find_address_list(packages_list):
                 if package_id not in found_package_list:
                     found_package_list.append(package_id)
                     same_delivery_address[index].append(p)
-    # for s in same_delivery_address:
-    #     print('same', s)
     return same_delivery_address
 
 
@@ -303,8 +300,9 @@ T1 = Truck('T1')
 T1.load_truck(package_info.truck_one_only) # 0 packages
 T1.load_truck(package_info.packages_with_delivery_deadlines) # 14 packages
 T1.load_truck(package_info.naked_packages) # until full
-print('find route 1', T1.route(0, T1.all_package_info))
-print(T1.add_to_delivery_time(T1.mileage))
+T1.route(0, T1.all_package_info)
+T1.set_delivery_time(T1.mileage)
+
 
 
 """
@@ -316,21 +314,6 @@ T2 = Truck('T2')
 T2.leave_time_hour = T1.hours
 
 """
-Truck 2 is used to deliver delayed packages and #9 with the wrong address because it leaves after the address is reset
-The wrong delivery address for package #9, 
-Third District Juvenile Court, will be corrected at 10:20 a.m. 
-The correct address is 410 S State St., Salt Lake City, UT 84111.
-"""
-package_info.p9.delivery_address = '410 S State St'
-package_info.p9.address_id = 19
-T2.leave_time_minutes = round(T1.minutes/60)
-T2.load_truck(package_info.truck_two_only) # 4 packages - 2, 18, 36, 38
-T2.load_truck(package_info.delayed_flight) # 4 packages - 6, 25, 28, 32
-T2.load_truck(package_info.wrong_address) # 1 package - 9
-print('find route 2', T2.route(0, T2.all_package_info))
-T2.add_to_delivery_time(T2.mileage)  # set self.delivery_time to calculated delivery time
-
-"""
 TRUCK 3 
 - delivers all remaining packages after Truck 1 and Truck 2 are loaded
 - leaves the hub at 8:00 AM
@@ -339,20 +322,43 @@ TRUCK 3
 
 # Truck 3
 T3 = Truck('T3')
+T3.load_truck(package_info.packages_with_delivery_deadlines)
 T3.load_truck(package_info.naked_packages)
 T3.load_truck(package_info.packages_without_delivery_deadlines)
-T3.load_truck(package_info.packages_with_delivery_deadlines)
-T3.load_truck(package_info.master_package_id_list)
 T3.route(0, T3.all_package_info)
-T3.add_to_delivery_time(T3.mileage)  # set self.delivery_time to calculated delivery time
+T3.set_delivery_time(T3.mileage)  # set self.delivery_time to calculated delivery time
+
+"""
+Truck 2 is used to deliver delayed packages and #9 with the wrong address because it leaves after the address is reset
+The wrong delivery address for package #9, 
+Third District Juvenile Court, will be corrected at 10:20 a.m. 
+The correct address is 410 S State St., Salt Lake City, UT 84111.
+"""
+
+# check for missed packages and add them back to the master_package_id_list
+for p in package_info.master_package_list:
+    # split p.delivery_time into hours and minutes
+    if p.delivery_time is '':
+        package_info.master_package_id_list.append(p.package_id_number)
+
+package_info.p9.delivery_address = '410 S State St'
+package_info.p9.address_id = 19
+T2.leave_time_minutes = round(T1.minutes/60)
+T2.load_truck(package_info.truck_two_only)  # 4 packages - 2, 18, 36, 38
+T2.load_truck(package_info.delayed_flight)  # 4 packages - 6, 25, 28, 32
+T2.load_truck(package_info.master_package_id_list)  # make sure no packages were missed
+T2.load_truck(package_info.wrong_address)  # 1 package - 9
+T2.route(0, T2.all_package_info)
+T2.set_delivery_time(T2.mileage)  # set self.delivery_time to calculated delivery time
 
 # total miles for all 3 trucks
 total_miles = T1.mileage + T2.mileage + T3.mileage
-print('total', total_miles)
+print('Total Mileage for All 3 Trucks:', total_miles)
 
 # delivered packages
 delivered_packages.sort()
 print(delivered_packages)
+
 
 
 
