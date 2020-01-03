@@ -69,7 +69,7 @@ class Truck:
     def add_to_delivery_time(self, miles):
 
         # calculate time
-        frac, whole = math.modf(miles / 18)
+        frac, whole = math.modf(miles / self.average_speed)
         self.hours = round(whole) + self.leave_time_hour
         self.minutes = round(frac * 60) + self.leave_time_minutes
 
@@ -109,11 +109,9 @@ class Truck:
     # function to load the trucks
     def load_truck(self, package_list):
         if package_list:
-            list_name = package_list[0]
             # check if truck is at the hub and has room
             if self.at_hub and self.full_truck is False:
-                print('Truck,', self.name, 'is good to load package list:', list_name)
-                print('Loading truck....')
+                print('Loading truck....', self.name)
 
                 for package in package_list[1:]:
                     if self.full_truck is True:
@@ -229,12 +227,6 @@ class Truck:
         return route
 
 
-# create trucks
-T1 = Truck('T1')
-T2 = Truck('T2')
-T3 = Truck('T3')
-
-
 def find_address_list(packages_list):
     address_bucket_list = []
     # find address id for package
@@ -269,8 +261,11 @@ def find_address_list(packages_list):
     return same_delivery_address
 
 
-# load trucks
+
 """
+TRUCKS
+
+PRIORITY LISTS
 List names from package_info:
 # priority 1
 packages_with_delivery_deadlines = ["Delivery Deadlines"]
@@ -297,36 +292,59 @@ truck_two_only = ["Load on this Truck two only"]
 truck_three_only = ["Load on this Truck two only"]
 wrong_address = ["Wrong Address"]
 """
-# Truck 1
+
+
+"""
+TRUCK 1
+
+
+"""
+T1 = Truck('T1')
 T1.load_truck(package_info.truck_one_only) # 0 packages
 T1.load_truck(package_info.packages_with_delivery_deadlines) # 14 packages
 T1.load_truck(package_info.naked_packages) # until full
 print('find route 1', T1.route(0, T1.all_package_info))
 print(T1.add_to_delivery_time(T1.mileage))
 
-# Truck 2
-"""
-This truck is used to deliver delayed packages and #9 with the wrong address
 
-Set truck to leave at 9:05
 """
-T2.leave_time_hour = 9
-T2.leave_time_minutes = 5
-T2.load_truck((package_info.truck_two_only)) # 4 packages - 2, 18, 36, 38
+TRUCK 2
+Truck 2 shares a driver with Truck 1 and must wait for Truck 1 to return from deliveries
+    Truck 2 is set to leave at the time T1 returns (10:27)
+"""
+T2 = Truck('T2')
+T2.leave_time_hour = T1.hours
+
+"""
+Truck 2 is used to deliver delayed packages and #9 with the wrong address because it leaves after the address is reset
+The wrong delivery address for package #9, 
+Third District Juvenile Court, will be corrected at 10:20 a.m. 
+The correct address is 410 S State St., Salt Lake City, UT 84111.
+"""
+package_info.p9.delivery_address = '410 S State St'
+package_info.p9.address_id = 19
+T2.leave_time_minutes = round(T1.minutes/60)
+T2.load_truck(package_info.truck_two_only) # 4 packages - 2, 18, 36, 38
 T2.load_truck(package_info.delayed_flight) # 4 packages - 6, 25, 28, 32
 T2.load_truck(package_info.wrong_address) # 1 package - 9
-# T2.load_truck(package_info.master_package_id_list)
 print('find route 2', T2.route(0, T2.all_package_info))
-print(T2.mileage)
-print(T2.add_to_delivery_time(T2.mileage))
+T2.add_to_delivery_time(T2.mileage)  # set self.delivery_time to calculated delivery time
 
+"""
+TRUCK 3 
+- delivers all remaining packages after Truck 1 and Truck 2 are loaded
+- leaves the hub at 8:00 AM
+- uses master package list to make sure no packages are missed during loading
+"""
 
 # Truck 3
+T3 = Truck('T3')
 T3.load_truck(package_info.naked_packages)
 T3.load_truck(package_info.packages_without_delivery_deadlines)
 T3.load_truck(package_info.packages_with_delivery_deadlines)
-print('find route 3', T3.route(0, T3.all_package_info))
-print(T3.add_to_delivery_time(T3.mileage))
+T3.load_truck(package_info.master_package_id_list)
+T3.route(0, T3.all_package_info)
+T3.add_to_delivery_time(T3.mileage)  # set self.delivery_time to calculated delivery time
 
 # total miles for all 3 trucks
 total_miles = T1.mileage + T2.mileage + T3.mileage

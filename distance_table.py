@@ -109,15 +109,11 @@ def build_bidirectional_distance_graph():
             first_line = False
             continue
         for v, e in enumerate(dist_tbl_hash[u]):
-            # if v is 1:
-                # print(dist_tbl_hash[u][v])
-                # del dist_tbl_hash[u][v]
             # skip first three elements
             if v > 2:
                 if e is '':
                     #  find corresponding value in row to build bidirectional graph
                     d[v] = dist_tbl_hash[v - 2][u + 2] # subtract 2 from v and add 2 to u to correct for skipped lines
-                    # print(dist_tbl_hash[v][u + 2])
         new_dist_graph.append(d)
 
     #  for each row in new_dist_graph
@@ -134,7 +130,6 @@ def build_bidirectional_distance_graph():
         save_row = [row[0], row[1]]
         prepare_row_for_sort.sort(key=lambda x: x[1])
         save_row.append(prepare_row_for_sort)
-        print(save_row)
         new_dist_graph[i] = save_row
     return new_dist_graph
 # build_bidirectional_distance_graph()
@@ -153,20 +148,18 @@ def get_distances_from_hub():
      beginning and end of the best_route array
 
     """
-    disances_from_hub = []
+    distances_from_hub = []
     for d in dist_tbl_hash:
         for distances in d[1:]:
             address_id = distances[0][0]
             for pairs in distances:
                 if pairs[0] == 0:
                     hub = pairs
-        disances_from_hub.append((address_id, hub[1]))
+        distances_from_hub.append((address_id, hub[1]))
     # remove hub
-    disances_from_hub.pop(0)
-    disances_from_hub.sort(key=lambda x: x[1])
-    return disances_from_hub
-
-
+    distances_from_hub.pop(0)
+    distances_from_hub.sort(key=lambda x: x[1])
+    return distances_from_hub
 # print(get_distances_from_hub())
 
 
@@ -181,46 +174,3 @@ def print_address_keys():
     for row in dist_tbl_hash:
         print(row[0], row[1])
 # print_address_keys()
-
-
-# helper function to take second element for a sort
-def take_second(elem):
-    return elem[1]
-
-
-# function to hash and sort a row for distances in ascending order
-def sort_graph_for_shortest_distances(row):
-    temp_address_id = 1
-    # put each row of distance graph in ascending order
-    # must keep track of original positions
-    for col in row[1:]:
-        sorted_dist = row
-        # add hash to column to keep track of original location
-        sorted_dist[temp_address_id] = (temp_address_id, col)
-        # if dist_graph[0][temp_address_id][1] < dist_graph[0][temp_address_id + 1][1]
-        temp_address_id += 1
-    # remove first element from the sorted_dist row
-    sorted_dist.pop(0)
-    sorted_dist.sort(key=take_second)
-    # temp_graph.sort(key=takeSecond)
-    return sorted_dist
-
-
-# build a sorted distance graph for easier access to the data and program readability
-def build_shortest_dists_graph(dist_graph):
-    # initialize shortest distances graph
-    shortest_dists = []
-    # sort rows of dist_graph for shortest distances then append to shortest_dists graph
-    for row in dist_graph:
-        sorted_row = sort_graph_for_shortest_distances(row)
-        shortest_dists.append(sorted_row)
-    return shortest_dists
-
-
-
-
-# print_street_address_only()
-# build_bidirectional_distance_graph()
-# print_dist_table_hash()
-# print_address_keys()
-# create a list of distances between pairs

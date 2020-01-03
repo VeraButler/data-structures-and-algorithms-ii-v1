@@ -21,7 +21,6 @@ with open(pkgFile) as pf:
         # set variables for insert function
         # delivery_address, delivery_deadline, delivery_city, delivery_state, delivery_zip_code, package_weight,
         #                delivery_status
-        # print(row)
         package_id_number = int(row[0])
         delivery_address = row[1]
         delivery_deadline = row[5]
@@ -33,7 +32,6 @@ with open(pkgFile) as pf:
         # PART E: use an insertion function that takes the listed components and inserts them into the hash table
         pkg_tbl_hash.append([package_id_number, delivery_address, delivery_deadline, delivery_city, delivery_state,
                              delivery_zip_code, package_weight, delivery_status, special_notes])
-# print(pkg_tbl_hash)
 
 
 # list for delivery deadlines
@@ -67,15 +65,10 @@ class Package:
         # individual package information list
         self.package_info_list = package_list[package_key - 1]
         self.package_id_number = package_key
-        # print(self.package_id_number)
         # subtract 1 from package key to access hash table in the right index
         package_key -= 1
-        # print(package_key)
-        # print(self.package_list[0])
-        # print(self.package_list[package_key])
         self.delivery_address = self.package_info_list[1]
         self.address_id = -1
-        # print(self.delivery_address)
         self.delivery_deadline = self.package_info_list[2]
         self.delivery_time = ''
         self.delivery_city = self.package_info_list[3]
@@ -93,10 +86,6 @@ class Package:
                 break
         if self.address_id is -1:
             self.address_id = 23
-
-
-            # else:
-            #     print(self.package_id_number, 'cannot find address id')
 
         if self.delivery_deadline != 'EOD':
             packages_with_delivery_deadlines.append([self.package_id_number, self.delivery_deadline])
@@ -212,16 +201,6 @@ p38 = Package(pkg_tbl_hash, 38)
 p39 = Package(pkg_tbl_hash, 39)
 p40 = Package(pkg_tbl_hash, 40)
 
-# print(len(packages_with_delivery_deadlines), packages_with_delivery_deadlines)
-# print(packages_without_delivery_deadlines)
-# print(packages_with_special_notes)
-# print(naked_packages)
-# print(delayed_flight)
-# print(this_truck_only)
-# print(wrong_address)
-# print(pkg_tbl_hash)
-# print(master_package_id_list)
-# print(p22.package_id_number, p22.address_id, p22.delivery_address)
 
 
 
