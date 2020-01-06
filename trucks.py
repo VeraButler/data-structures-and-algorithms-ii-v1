@@ -1,30 +1,36 @@
-# Other Assumptions:
-####################
-# Trucks have a “infinite amount of gas” with no need to stop.
-# The package ID is unique; there are no collisions.
-# No further assumptions exist or are allowed.
+"""
+TRUCK CLASS ASSUMPTIONS
 
-# Delivery time is instantaneous, i.e., no time passes while at a delivery
-# (that time is factored into the average speed of the trucks).
-
-# The wrong delivery address for package #9, Third District Juvenile Court, will be corrected at 10:20 a.m.
-# The correct address is 410 S State St., Salt Lake City, UT 84111.
-#####################
-# THOUGHTS:
-# The truck is responsible for delivering up to 16 packages at 18 miles per hour.
+Trucks have a “infinite amount of gas” with no need to stop.
+The package ID is unique; there are no collisions.
+Delivery time is instantaneous, i.e., no time passes while at a delivery
+    (that time is factored into the average speed of the trucks).
+No further assumptions exist or are allowed.
+The wrong delivery address for package #9, Third District Juvenile Court, will be corrected at 10:20 a.m.
+    The correct address is 410 S State St., Salt Lake City, UT 84111.
+--------------------------------------------------------------------------------------------------------
+PART B
+B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
+B.2 Apply programming models to the scenario.
+        The application of programming models includes the communication protocol that is used to exchange data;
+        the target host environment used to host the server application program; and the interaction semantics defined
+        by the application to control connect, data exchange, and disconnect sequences.
+B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
+B.4 Discuss the ability of your solution to adapt to a changing market and to scalability.
+B.5 Discuss the efficiency and maintainability of the software.
+B.6 Discuss the self-adjusting data structures chosen and their strengths and weaknesses based on the scenario.
+"""
 
 # imports
 import package_info
 from graph import g
 import math
 
-# todo
-#   pop packages from ALL associated lists
-#   get total mileage from all trucks
-
-# initiate and set visited variable to an empty list
-visited_locations = []
-# initiate and set delivered packages list
+"""
+B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
+        SET GLOBAL EMPTY LISTS delivered_packages, address_for_packages_found, loaded_packages
+            *These lists need to be global so that all Trucks can access them throughout the software solution
+"""
 delivered_packages = []
 address_for_package_found = []
 loaded_packages = []
@@ -35,8 +41,11 @@ class Truck:
     def __init__(self, truck):
         # truck name
         self.name = truck
-        # Each truck can carry a maximum of 16 packages.
+        # SET self.number_of_packages = 0
         self.number_of_packages = 0
+        # Maximum number of packages allowed on each Truck is 16
+        # SET max_packages = 16
+        self.max_packages = 16
         # Trucks travel at an average speed of 18 miles per hour.
         self.average_speed = 18
         # Each driver stays with the same truck as long as that truck is in service.
@@ -64,11 +73,50 @@ class Truck:
         self.minutes_str = ''
         self.delivery_time = 0
 
-    # time to get to location (18mi/hr)
-    #  todo fix me
     def set_delivery_time(self, miles):
+        """
+        B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
+                SET FLOAT frac, whole = PYTHON BUILT IN FUNCTION math.modf(miles / self.average_speed)
+                SET FLOAT self.hours = INT ROUND(whole) + INT self.leave_time_hour
+                SET FLOAT self.minutes = INT round(frac * 60) + INT self.leave_time_minutes
 
-        # calculate time
+        O(1)    IF INT self.hours > 11:
+                    meridies = ' PM'
+                ELSE:
+                    meridies = ' AM'
+
+                 # add zero for single digit minutes
+        O(1)    SIZE = LENGTH(STRING(self.minutes))
+                IF SIZE < 2:
+                    STRING self.minutes = '0' + STRING(self.minutes)
+
+                SET STRING self.delivery_time = STRING(self.hours) + ':' + STRING(self.minutes) + meridies
+
+                RETURN self.delivery_time
+
+        B.2 Apply programming models to the scenario.
+        Simple mathematical calculations are used to convert 18/miles per hour into fractional time variables which are
+        then converted to stings to be used to track total delivery time of each truck and the delivered time of each
+        package. Both total delivery time of each truck and the delivered time of each package are held in memory with
+        their associated locations in memory. Without the use of classes for both Truck and Package it would be
+        necessary to loop through all the data of each member and would decrease performance of the method from
+        O(1) to O(N^2).
+
+        B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
+              O(1)
+
+        B.4 Discuss the ability of your solution to adapt to a changing market and to scalability.
+              Upgrades to the physical trucks, the amount of packages that need to be delivered daily, or the expansion
+              of the region of the delivery system may mean a change in miles per hour or the time it would take to
+              complete a delivery route. See B.5 for why this method can be easily updated for these types of changes.
+
+        B.5 Discuss the efficiency and maintainability of the software.
+              This method is efficient and maintainable because it enables the miles per hour to be
+              changed globally in the program within the Truck class. The time element is dependent upon the
+              miles per hour, therefore, it will also be updated globally.
+        """
+
+        # calculate the time based on 18 miles per hour - O(1)
         frac, whole = math.modf(miles / self.average_speed)
         self.hours = round(whole) + self.leave_time_hour
         self.minutes = round(frac * 60) + self.leave_time_minutes
@@ -77,21 +125,46 @@ class Truck:
         if len(str(self.minutes)) < 2:
             self.minutes = '0' + str(self.minutes)
 
-        # set meridies
         if self.hours > 11:
             meridies = ' PM'
         else:
             meridies = ' AM'
 
         self.delivery_time = str(self.hours) + ':' + str(self.minutes) + meridies
+
         return self.delivery_time
 
     def add_package(self, package_id):
         # find complete package information
         # check for full truck, if not full then add package_info to truck
-        if self.number_of_packages < 16 and package_id not in self.all_package_info:
+        """
+        B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
+            O(1)    IF self.number_of_packages < self.max_packages AND package _id NOT IN self.all_package_info
+                    THEN SET self.number_of_packages == self.number_of_packages + 1
+            O(1)        IF package_id in package_info.master_package_id_list
+                            THEN
+                            SET INT package_index = package_id - 1
+                            SET MEMORY ADDRESS package_memory_address == master_package_list[package_index]
+                            SET STRING package_memory_address.loaded_on_truck == self.name
+
+                            APPEND package_memory_address TO LIST self.all_package_info
+                            APPEND package_id TO LIST loaded_packages
+                            REMOVE package_id FROM LIST master_package_id_list
+                        END IF
+
+                    ELSE
+                        SET BOOLEAN self.truck_full == TRUE
+                    END IF
+
+            O(1)    IF self.truck_full == TRUE
+                        THEN PRINT "Truck is full."
+                    END IF
+        """
+        if self.number_of_packages < self.max_packages and package_id not in self.all_package_info:
             self.number_of_packages += 1
+
             # pop package from master package list
+
             if package_id in package_info.master_package_id_list:
                 package_index = package_id - 1
                 package_memory_address = package_info.master_package_list[package_index]
@@ -110,6 +183,33 @@ class Truck:
 
     # function to load the trucks
     def load_truck(self, package_list):
+        """
+        B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
+        IF BOOLEAN package_list IS NOT EMPTY
+            IF BOOLEAN self.at_hub IS TRUE AND BOOLEAN self.full_truck IS FALSE
+                THEN PRINT "Loading truck..." + STRING self.name
+
+                FOR EACH LIST package in LIST package_list FROM element 1 to element N
+                    IF BOOLEAN self.truck_full IS TRUE
+                        THEN RETURN
+                    ELSE
+                        IF package IS LIST
+                            THEN
+                            SET INT package_id == package[0]
+
+                            IF INT package_id IS IN package_info.master_id_package_list
+                                THEN
+                                CALL FUNCTION self.add_package(INT package_id)
+                                REMOVE LIST package from LIST package_list
+                            ELSE
+                                SET INT package_id = INT package
+                                IF INT package_id IS IN LIST package_info.master_id_list
+                                    THEN CALL FUNCTION self.add_package(INT package_id)
+        B.2 Apply programming models to the scenario.
+        B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
+        B.4 Discuss the ability of your solution to adapt to a changing market and to scalability.
+        B.5 Discuss the efficiency and maintainability of the software.
+        """
         if package_list:
             # check if truck is at the hub and has room
             if self.at_hub and self.full_truck is False:
@@ -118,7 +218,7 @@ class Truck:
                 for package in package_list[1:]:
                     if self.full_truck is True:
                         return
-                    if self.full_truck is False:
+                    else:
                         if isinstance(package, list):
                             package_id = package[0]
                             if package_id in package_info.master_package_id_list:
@@ -130,12 +230,169 @@ class Truck:
                                 self.add_package(package_id)
 
     def route(self, start_vertex, package_list):
+
+        """
+        B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
+
+        O(1)    IF LIST package_list IS EMPTY
+                    RETURN
+
+                // set all packages in the list delivery status to 'en route'
+        O(N)   FOR EACH STRING package_delivery_status IN LIST package_list
+                    SET STRING package_delivery_status == STRING 'en route'
+                END FOR
+
+                // initialize and set empty unvisited queue list
+                SET EMPTY LIST unvisited_queue
+
+                // set package list argument to new address list with find_Address_list()
+                SET LIST package_list = CALL FUNCTION find_address_list(package_list)
+
+                // build a list of address ids from CLASS GRAPH.sorted_bidirectional to track unvisited package locations
+        O(N)    FOR EACH TUPLE vertex IN Graph.sorted_bidirectional
+        O(N^2)      FOR EACH MEMORY ADDRESS package IN LIST package_list
+                        SET INT package_location = p[0]
+                        SET INT location_vertex = vertex[0]
+
+                        IF INT package_location == INT location_vertex
+                           AND INT package_location IS NOT IN LIST unvisited_queue:
+                             APPEND INT package_location TO LIST unvisited_queue
+                        END IF
+                    END FOR
+                END FOR
+
+                 // build the route using the first instance of a matching location id ot vertex id in
+                  // sorted_bidirectional graph
+
+                 SET EMPTY LIST route
+                 SIZE = LENGTH OF unvisited_queue
+        O(log N) WHILE SIZE > 0:
+                    SET LIST hub = Graph.sorted_bidirectional[0][2]
+
+                    // base case - hub has the vertex id of 0
+                    IF INT start_vertex IS 0:
+                        APPEND 0 to LIST route
+                        SET BOOLEAN flag TO FALSE
+        O(N*logN)       FOR EACH TUPLE vertex IN LIST hub:
+        O(N^2 * logN)       FOR EACH LIST package IN LIST package_list:
+                                SET INT package_location_id = p[0]
+                                SET INT vertex_id = vertex[0]
+                                IF INT package_location_id == INT vertex_id:
+                                    SET INT address_id = INT package_location_id
+                                    SET MEMORY ADDRESS package = p[2]
+                                    SET INT miles = INT vertex[1]
+                                    SET INT smallest_index = INT address_id
+
+                                    // update mileage for truck
+                                    SET INT self.mileage = self.mileage +  miles
+                                    // deliver package
+                                    SET INT package_id_number = SET INT package.package_id_number
+                                    APPEND INT package_id_number TO LIST delivered_packages
+                                    //add time of delivery for truck and package
+                                    SET STRING package.delivery_status = STRING 'delivered'
+
+                                    IF STRING package.delivery_status is 'delivered':
+                                        SET STRING package.delivery_time = STRING self.set_delivery_time(self.mileage)
+                                    END IF
+
+                                    SET BOOLEAN flag TO TRUE
+                                    BREAK
+
+                                END IF
+
+                            IF flag IS TRUE
+                                BREAK
+                            END IF
+
+                            END FOR
+                        END FOR
+
+                        // remove first location to unvisited_queue
+                        REMOVE INT address_id FROM LIST unvisited_queue
+
+                        // add first location to route
+                        APPEND INT address_id TO LIST route
+
+                        // save first location to next vertex
+                        // graph[address_id][2] accesses just the list of tuples: (vertex_id, miles from base vertex)
+                        SET LIST next_vertex = Graph.sorted_bidirectional[address_id][2]
+
+                        // change start vertex to any other integer than 0 - this is being used as a boolean flag
+                        SET INT start_vertex = 1
+                    END IF
+
+
+                    // next_vertex is the closest distance in the adjacency list
+                    //   it is the first instance of a location that is still in the unvisited list
+                    // ex: the entire route algorithm for location 0 -> 26 should return:
+
+                    // [0, 20, 21, 24, 26, 22, 17, 4, 16, 7, 13, 15, 18, \
+                    // 11, 5, 9, 2, 25, 19, 8, 12, 6, 1, 13, 14, 3, 23, 10]
+
+                    // Check potential path lengths from the current vertex to all neighbors.
+                    // If shorter path from start_vertex to adj_vertex is found,
+                    // update adj_vertex's distance and predecessor
+        O(N*logN)       FOR EACH TUPLE vertex IN LIST next_vertex
+                        SET INT vertex_id = INT vertex[0]
+                        SET FLOAT miles = vertex[1]
+
+                        IF INT vertex_id IS IN LIST unvisited_queue AND INT vertex_id != 0 AND FLOAT miles != 0.0
+                            THEN
+                            SET INT adj_vertex = INT vertex_id
+                            SET FLOAT self.mileage = FLOAT self.mileage + FLOAT miles
+
+                            // deliver package
+        O(N^2*logN)             FOR EACH LIST package IN LIST package_list:
+                                SET INT package_id = INT p[0]
+                                IF INT package_id == INT adj_vertex:
+        O(N^3*logN)                     FOR EACH MEMORY ADDRESS package_memory_address in package[2:]:
+                                        APPEND INT package_memory_address.package_id_number TO LIST delivered_packages
+                                        SET STRING package_memory_address.delivery_status = STRING 'delivered'
+                                        IF STRING package_memory_address.delivery_status is 'delivered':
+                                            SET STRING package_memory_address.delivery_time = \
+                                            STRING self.set_delivery_time(self.mileage)
+                                        END IF
+                                    END FOR
+                                    REMOVE LIST package FROM LIST package_list
+                                END IF
+                            BREAK
+                            END FOR
+                    END FOR
+
+                    APPEND INT INDEX OF adj_vertex OF LIST unvisited_queue TO LIST route AND REMOVE FROM LIST unvisited_queue
+                    SET LIST next_vertex = LIST Graph.sorted_bidirectional[adj_vertex][2]
+
+                END WHILE
+                // go back to hub - use adjacency list which is just a list of the miles in order of location id
+        O(N)    FOR EACH TUPLE vertex IN LIST hub:
+                    SET INT location_id = INT vertex[0]
+                    SET FLOAT miles_for_current_vertex = FLOAT vertex[1]
+                    SET INT last_index_in_route = INT route[-1]
+
+                    IF INT location_id == INT last_index_in_route:
+                        SET FLOAT self.mileage = FLOAT miles_for_current_vertex + FLOAT self.mileage
+
+                        // hub vertex id is 0
+                        APPEND 0 TO LIST route
+                    END IF
+                END FOR
+
+                // set total delivery for truck
+                SET STRING self.delivery_time = CALL STRING FUNCTION self.set_delivery_time(FLOAT self.mileage)
+
+                RETURN route
+        B.2 Apply programming models to the scenario.
+        B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
+        B.4 Discuss the ability of your solution to adapt to a changing market and to scalability.
+        B.5 Discuss the efficiency and maintainability of the software.
+        """
+        # if the package_list parameter is empty return
         if not package_list:
             return
         # set all packages in the list delivery status to 'en route'
         for p in package_list:
             p.delivery_status = 'en route'
-        # Put all vertices in an unvisited queue.
+
         unvisited_queue = []
         # vertex_id = g.sorted_bidirectional[start_vertex][0]
         # set package list to address list
@@ -143,17 +400,13 @@ class Truck:
         # build a list of address ids to track unvisited package locations
         for vertex in g.sorted_bidirectional:
             for p in package_list:
-                if p[0] == vertex[0] and p[0] not in unvisited_queue:
-                    unvisited_queue.append(p[0])
+                package_location = p[0]
+                location_vertex = vertex[0]
+                if package_location == location_vertex and package_location not in unvisited_queue:
+                    unvisited_queue.append(package_location)
 
         route = []
         while len(unvisited_queue) > 0:
-            """ 
-            sorted_bidirectional's second element is a list of tuples with distances by location in ascending order
-              elements 1 & 2 [vertex_id, 'address_string', ->
-              element_2 SUBLIST (Adjacency list)   
-                                [(vertex_id, miles from self), (closest_location_1, miles_from_vertex_id),
-                                ...(closest_location_N, miles_from_vertex_id), (furthest_location, miles from vertex_id)]"""
             # Visit vertex with closest distance from current location
             # smallest index is also the next_vertex
             hub = g.sorted_bidirectional[0][2]
@@ -169,15 +422,16 @@ class Truck:
                     for p in package_list:
                         if p[0] == vertex[0]:
                             address_id = p[0]
+                            package = p[2]
                             miles = vertex[1]
                             smallest_index = address_id
                             self.mileage += miles
                             # add time of delivery for truck and package
                             # deliver package
                             delivered_packages.append(p[2].package_id_number)
-                            p[2].delivery_status = 'delivered'
-                            if p[2].delivery_status is 'delivered':
-                                p[2].delivery_time = self.set_delivery_time(self.mileage)
+                            package.delivery_status = 'delivered'
+                            if package.delivery_status is 'delivered':
+                                package.delivery_time = self.set_delivery_time(self.mileage)
                             flag = True
                             break
                     if flag:
@@ -190,15 +444,16 @@ class Truck:
 
             # next_vertex is the closest distance in the adjacency list
             #   it is the first occurence of a location that is still in the unvisited list
-            #   the entire algorithm for location 0 -> 26 should return:
+            #   the entire route algorithm for location 0 -> 26 should return:
             #       0, 20, 21, 24, 26, 22, 17, 4, 16, 7, 13, 15, 18, 11, 5, 9, 2, 25, 19, 8, 12, 6, 1, 13, 14, 3, 23, 10
 
             # Check potential path lengths from the current vertex to all neighbors.
             # If shorter path from start_vertex to adj_vertex is found,
             # update adj_vertex's distance and predecessor
             for vertex in next_vertex:
-                if vertex[0] in unvisited_queue and vertex[0] != 0 and vertex[1] != 0.0:
-                    adj_vertex = vertex[0]
+                vertex_id = vertex[0]
+                if vertex_id in unvisited_queue and vertex_id != 0 and vertex[1] != 0.0:
+                    adj_vertex = vertex_id
                     miles = vertex[1]
                     self.mileage += float(miles)
                     # deliver package
@@ -227,15 +482,74 @@ class Truck:
 
 
 def find_address_list(packages_list):
+    """
+    B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
+         // list of package address in memory
+         SET LIST address_bucket_list = []
+
+         // check if package list exists
+    O(1) IF BOOLEAN packages_list IS NOT EMPTY:
+
+            // create a list to hold all memory addresses of packages associated with each package in the package list
+            // argument and a list to hold all package ids associated with packages in the package list argument
+            FOR EACH ADDRESS package IN LIST packages_list:
+                SET INT package_id == INT package.package_id_number
+
+                APPEND ADDRESS package TO LIST address_bucket_list
+                APPEND INT package_id TO LIST address_for_package_found
+            END FOR
+
+         //list for boolean use to enforce unique data entries
+         SET EMPTY LIST same_delivery_address
+
+         // list for boolean use to flag that a package has been found and no packages are missed
+         SET EMPTY LIST found_package_list
+
+    O(N) FOR EACH ADDRESS package IN LIST address_bucket_list
+
+            // set and initialize variables street_address, address_id, package_id to associated package information
+            SET STRING street_address = STRING package.delivery_address
+            SET INT address_id = INT package.address_id
+            SET INT package_id = INT package.package_id_number
+
+            // check if the address_id and street_address variables are not in same_delivery_address list then then
+            // build the same_delivery_address and found_packages lists
+    O(1)    IF LIST [address_id, street_address] IS NOT IN LIST same_delivery_address
+                APPEND LIST [address_id, street_address] TO LIST same_delivery_address
+    O(N)        FOR LIST s IN same_delivery_address
+    O(1)        IF s[1] == street_address
+                    SET INT index == INDEX OF same_delivery_address
+    O(1)            IF INT package_id IS NOT IN LIST found_package_list:
+                        APPEND INT package_id TO LIST found_package_list
+                        INSERT MEMORY ADDRESS package TO same_delivery_address AT INDEX index
+                    END IF
+                END IF
+                END FOR
+            END IF
+         END FOR
+
+        RETURN same_delivery_address
+
+
+    B.2 Apply programming models to the scenario.
+
+    B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
+          O(N^2)
+
+    B.4 Discuss the ability of your solution to adapt to a changing market and to scalability.
+    B.5 Discuss the efficiency and maintainability of the software.
+    """
+
+    # list to hold package addresses in memory from CLASS PACKAGE
     address_bucket_list = []
-    # find address id for package
+
+    # check if package_list exists
     if packages_list:
+
+        # create a list to hold all memory addresses of packages associated with each package in the package list
+        # argument and a list to hold all package ids associated with packages in the package list argument
         for p in packages_list:
             package_id = p.package_id_number
-            address_id = p.address_id
-            street_address = p.delivery_address
-            # a[0] is address id from master address list
-            # a[1] is the address string 'XXX street street_address' correlated with the address id
             address_bucket_list.append(p)
             address_for_package_found.append(package_id)
 
@@ -294,6 +608,15 @@ wrong_address = ["Wrong Address"]
 """
 TRUCK 1
 
+Load Truck 1 first with lists:
+truck_one_only - not used for requirements of this program but exists for scalability 
+packages_with_delivery_deadlines - load first because they are top priority
+naked_packages - load last to fill the truck to max capacity
+
+THEN find the route with the list T1.all_packages_info
+     this list includes all package ids associated with previously loaded packages above
+
+THEN SET the delivery_time for T1
 
 """
 T1 = Truck('T1')
