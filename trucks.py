@@ -243,19 +243,22 @@ class Truck:
                     RETURN
 
                 // set all packages in the list delivery status to 'en route'
-        O(N)   FOR EACH STRING package_delivery_status IN LIST package_list
-                    SET STRING package_delivery_status == STRING 'en route'
-                END FOR
-
+        O(N)    FOR EACH STRING package_delivery_status IN LIST package_list
+        N =         SET STRING package_delivery_status == STRING 'en route'
+        num     END FOR
+        packages
                 // initialize and set empty unvisited queue list
                 SET EMPTY LIST unvisited_queue
 
                 // set package list argument to new address list with find_Address_list()
         O(N)    SET LIST package_list = CALL FUNCTION find_address_list(package_list)
+        N = truckload
 
                 // build a list of address ids from CLASS GRAPH.sorted_bidirectional to track unvisited package locations
         O(N)    FOR EACH TUPLE vertex IN Graph.sorted_bidirectional
+        N = 27
         O(N^2)      FOR EACH MEMORY ADDRESS package IN LIST package_list
+        N = truckload
                         SET INT package_location = p[0]
                         SET INT location_vertex = vertex[0]
 
@@ -271,7 +274,9 @@ class Truck:
 
                  SET EMPTY LIST route
                  SIZE = LENGTH OF unvisited_queue
+
         O(log N) WHILE SIZE > 0:
+        N = [1-16]
                     SET LIST hub = Graph.sorted_bidirectional[0][2]
 
                     // base case - hub has the vertex id of 0
@@ -279,7 +284,12 @@ class Truck:
                         APPEND 0 to LIST route
                         SET BOOLEAN flag TO FALSE
         O(N*logN)       FOR EACH TUPLE vertex IN LIST hub:
+        N = 27
+        O(log[1-16] * 27)
+
         O(N^2 * logN)       FOR EACH LIST package IN LIST package_list:
+        N = [1-16]
+        O(log[1-16]*(27+[1-16])^2)
                                 SET INT package_location_id = p[0]
                                 SET INT vertex_id = vertex[0]
                                 IF INT package_location_id == INT vertex_id:
@@ -337,7 +347,11 @@ class Truck:
                     // Check potential path lengths from the current vertex to all neighbors.
                     // If shorter path from start_vertex to adj_vertex is found,
                     // update adj_vertex's distance and predecessor
+
         O(N*logN)       FOR EACH TUPLE vertex IN LIST next_vertex
+        N = 27
+        O(log[1-16] * 27)
+
                         SET INT vertex_id = INT vertex[0]
                         SET FLOAT miles = vertex[1]
 
@@ -347,13 +361,18 @@ class Truck:
                             SET FLOAT self.mileage = FLOAT self.mileage + FLOAT miles
 
                             // deliver package
-        O(N^2*logN)             FOR EACH LIST package IN LIST package_list:
+        O(N^2*logN)         FOR EACH LIST package IN LIST package_list:
+        N = [1-16]
+        O(log[1-16]*(27+[1-16])^2)
+
                                 SET INT package_id = INT p[0]
                                 IF INT package_id == INT adj_vertex:
         O(N^3*logN)                FOR EACH MEMORY ADDRESS package_memory_address in package[2:]:
-                                        APPEND INT package_memory_address.package_id_number TO LIST delivered_packages
-                                        SET STRING package_memory_address.delivery_status = STRING 'delivered'
-                                        IF STRING package_memory_address.delivery_status is 'delivered':
+        N = [1-16]
+        O(log[1-6] * (27 + [1-16] + [1-16])^3
+                                       APPEND INT package_memory_address.package_id_number TO LIST delivered_packages
+                                       SET STRING package_memory_address.delivery_status = STRING 'delivered'
+                                       IF STRING package_memory_address.delivery_status is 'delivered':
                                             SET STRING package_memory_address.delivery_time = \
                                             STRING self.set_delivery_time(self.mileage)
                                         END IF
@@ -370,7 +389,7 @@ class Truck:
                 END WHILE
                 // go back to hub - use adjacency list which is just a list of the miles in order of location id
         O(N)    FOR EACH TUPLE vertex IN LIST hub:
-                    SET INT location_id = INT vertex[0]
+        N = 27      SET INT location_id = INT vertex[0]
                     SET FLOAT miles_for_current_vertex = FLOAT vertex[1]
                     SET INT last_index_in_route = INT route[-1]
 
