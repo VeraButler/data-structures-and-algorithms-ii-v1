@@ -134,6 +134,19 @@ class Truck:
 
         return self.delivery_time
 
+    def set_load_time(self):
+        leave_time_minutes = self.leave_time_minutes
+        # add zero for single digit minutes
+        if len(str(leave_time_minutes)) < 2:
+            leave_time_minutes = '0' + str(self.leave_time_minutes)
+
+        if self.hours > 11:
+            meridies = ' PM'
+        else:
+            meridies = ' AM'
+
+        return str(self.leave_time_hour) + ':' + str(leave_time_minutes) + meridies
+
     def add_package(self, package_id):
         # find complete package information
         # check for full truck, if not full then add package_info to truck
@@ -191,7 +204,8 @@ class Truck:
         O(1)        IF BOOLEAN self.at_hub IS TRUE AND BOOLEAN self.full_truck IS FALSE
                         THEN PRINT "Loading truck..." + STRING self.name
 
-        O(N)            FOR EACH LIST package in LIST package_list FROM element 1 to element N
+        O(N)            FOR EACH package_id in LIST package_list
+        N = [1-inf]
         O(1)                IF BOOLEAN self.truck_full IS TRUE
                                 THEN RETURN
                             ELSE
@@ -243,22 +257,29 @@ class Truck:
                     RETURN
 
                 // set all packages in the list delivery status to 'en route'
+                    // packages have already been loaded with load_truck
         O(N)    FOR EACH STRING package_delivery_status IN LIST package_list
-        N =         SET STRING package_delivery_status == STRING 'en route'
-        num     END FOR
-        packages
+        N = [1-16]
+                    SET STRING package_delivery_status == STRING 'en route'
+                END FOR
+
                 // initialize and set empty unvisited queue list
                 SET EMPTY LIST unvisited_queue
 
                 // set package list argument to new address list with find_Address_list()
         O(N)    SET LIST package_list = CALL FUNCTION find_address_list(package_list)
-        N = truckload
+        N = [1-16]
+
+
 
                 // build a list of address ids from CLASS GRAPH.sorted_bidirectional to track unvisited package locations
+
         O(N)    FOR EACH TUPLE vertex IN Graph.sorted_bidirectional
         N = 27
+
         O(N^2)      FOR EACH MEMORY ADDRESS package IN LIST package_list
         N = truckload
+
                         SET INT package_location = p[0]
                         SET INT location_vertex = vertex[0]
 
@@ -369,7 +390,7 @@ class Truck:
                                 IF INT package_id == INT adj_vertex:
         O(N^3*logN)                FOR EACH MEMORY ADDRESS package_memory_address in package[2:]:
         N = [1-16]
-        O(log[1-6] * (27 + [1-16] + [1-16])^3
+        O(log[1-16] * (inf + [1-16] + [1-16])^3
                                        APPEND INT package_memory_address.package_id_number TO LIST delivered_packages
                                        SET STRING package_memory_address.delivery_status = STRING 'delivered'
                                        IF STRING package_memory_address.delivery_status is 'delivered':
@@ -390,7 +411,7 @@ class Truck:
                 // go back to hub - use adjacency list which is just a list of the miles in order of location id
         O(N)    FOR EACH TUPLE vertex IN LIST hub:
         N = 27      SET INT location_id = INT vertex[0]
-                    SET FLOAT miles_for_current_vertex = FLOAT vertex[1]
+        O(27)       SET FLOAT miles_for_current_vertex = FLOAT vertex[1]
                     SET INT last_index_in_route = INT route[-1]
 
                     IF INT location_id == INT last_index_in_route:
@@ -419,6 +440,7 @@ class Truck:
         # set all packages in the list delivery status to 'en route'
         for p in package_list:
             p.delivery_status = 'en route'
+            p.load_time = self.set_load_time()
 
         unvisited_queue = []
         # vertex_id = g.sorted_bidirectional[start_vertex][0]
@@ -459,6 +481,7 @@ class Truck:
                             package.delivery_status = 'delivered'
                             if package.delivery_status is 'delivered':
                                 package.delivery_time = self.set_delivery_time(self.mileage)
+                                print('package delivery time', package.delivery_time)
                             flag = True
                             break
                     if flag:
@@ -533,6 +556,7 @@ def find_address_list(packages_list):
          SET EMPTY LIST found_package_list
 
     O(N) FOR EACH ADDRESS package IN LIST address_bucket_list
+    N = [1-16]??? is this the number of locations or packages in the list
 
             // set and initialize variables street_address, address_id, package_id to associated package information
             SET STRING street_address = STRING package.delivery_address
@@ -543,7 +567,10 @@ def find_address_list(packages_list):
             // build the same_delivery_address and found_packages lists
     O(1)    IF LIST [address_id, street_address] IS NOT IN LIST same_delivery_address
                 APPEND LIST [address_id, street_address] TO LIST same_delivery_address
+
     O(N)        FOR LIST s IN same_delivery_address
+    N = [1-16]??? see above ???
+
     O(1)        IF s[1] == street_address
                     SET INT index == INDEX OF same_delivery_address
     O(1)            IF INT package_id IS NOT IN LIST found_package_list:
@@ -557,7 +584,7 @@ def find_address_list(packages_list):
 
         RETURN same_delivery_address
 
-    BIG O Total => O(N)
+    BIG O Total => O(N) => O([1-16])
 
 
     B.2 Apply programming models to the scenario.
@@ -655,8 +682,6 @@ T1.load_truck(package_info.naked_packages) # until full
 T1.route(0, T1.all_package_info)
 T1.set_delivery_time(T1.mileage)
 
-
-
 """
 TRUCK 2
 Truck 2 shares a driver with Truck 1 and must wait for Truck 1 to return from deliveries
@@ -664,6 +689,8 @@ Truck 2 shares a driver with Truck 1 and must wait for Truck 1 to return from de
 """
 T2 = Truck('T2')
 T2.leave_time_hour = T1.hours
+T2.leave_time_minutes = T1.minutes
+
 
 """
 TRUCK 3 
@@ -689,13 +716,14 @@ The correct address is 410 S State St., Salt Lake City, UT 84111.
 
 # check for missed packages and add them back to the master_package_id_list
 for p in package_info.master_package_list:
-    # split p.delivery_time into hours and minutes
+    # IF there is no delivery time THEN add the package back to the master package list
     if p.delivery_time is '':
         package_info.master_package_id_list.append(p.package_id_number)
 
+# SET package #9 to new address
 package_info.p9.delivery_address = '410 S State St'
 package_info.p9.address_id = 19
-T2.leave_time_minutes = round(T1.minutes/60)
+T2.leave_time_minutes = T1.minutes
 T2.load_truck(package_info.truck_two_only)  # 4 packages - 2, 18, 36, 38
 T2.load_truck(package_info.delayed_flight)  # 4 packages - 6, 25, 28, 32
 T2.load_truck(package_info.master_package_id_list)  # make sure no packages were missed
@@ -703,11 +731,11 @@ T2.load_truck(package_info.wrong_address)  # 1 package - 9
 T2.route(0, T2.all_package_info)
 T2.set_delivery_time(T2.mileage)  # set self.delivery_time to calculated delivery time
 
-# total miles for all 3 trucks
+# PRINT the total miles for all 3 trucks
 total_miles = T1.mileage + T2.mileage + T3.mileage
 print('Total Mileage for All 3 Trucks:', total_miles)
 
-# delivered packages
+# PRINT a list of delivered packages in ascending order
 delivered_packages.sort()
 print(delivered_packages)
 

@@ -70,6 +70,7 @@ class Package:
         self.delivery_address = self.package_info_list[1]
         self.address_id = -1
         self.delivery_deadline = self.package_info_list[2]
+        self.load_time = ''
         self.delivery_time = ''
         self.delivery_city = self.package_info_list[3]
         self.delivery_state = self.package_info_list[4]
