@@ -159,6 +159,8 @@ class Truck:
             O(1)    IF self.truck_full == TRUE
                         THEN PRINT "Truck is full."
                     END IF
+
+            BIG O => O(1)
         """
         if self.number_of_packages < self.max_packages and package_id not in self.all_package_info:
             self.number_of_packages += 1
@@ -185,28 +187,31 @@ class Truck:
     def load_truck(self, package_list):
         """
         B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
-        IF BOOLEAN package_list IS NOT EMPTY
-            IF BOOLEAN self.at_hub IS TRUE AND BOOLEAN self.full_truck IS FALSE
-                THEN PRINT "Loading truck..." + STRING self.name
+        O(1)    IF BOOLEAN package_list IS NOT EMPTY
+        O(1)        IF BOOLEAN self.at_hub IS TRUE AND BOOLEAN self.full_truck IS FALSE
+                        THEN PRINT "Loading truck..." + STRING self.name
 
-                FOR EACH LIST package in LIST package_list FROM element 1 to element N
-                    IF BOOLEAN self.truck_full IS TRUE
-                        THEN RETURN
-                    ELSE
-                        IF package IS LIST
-                            THEN
-                            SET INT package_id == package[0]
-
-                            IF INT package_id IS IN package_info.master_id_package_list
-                                THEN
-                                CALL FUNCTION self.add_package(INT package_id)
-                                REMOVE LIST package from LIST package_list
+        O(N)            FOR EACH LIST package in LIST package_list FROM element 1 to element N
+        O(1)                IF BOOLEAN self.truck_full IS TRUE
+                                THEN RETURN
                             ELSE
-                                SET INT package_id = INT package
-                                IF INT package_id IS IN LIST package_info.master_id_list
-                                    THEN CALL FUNCTION self.add_package(INT package_id)
+        O(1)                    IF package IS LIST
+                                    THEN
+                                    SET INT package_id == package[0]
+
+        O(1)                        IF INT package_id IS IN package_info.master_id_package_list
+                                        THEN
+                                        CALL FUNCTION self.add_package(INT package_id)
+                                        REMOVE LIST package from LIST package_list
+                                    ELSE
+                                        SET INT package_id = INT package
+        O(1)                            IF INT package_id IS IN LIST package_info.master_id_list
+                                            THEN CALL FUNCTION self.add_package(INT package_id)
+        BIG O => O(N)
+
         B.2 Apply programming models to the scenario.
         B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
+                O(N)
         B.4 Discuss the ability of your solution to adapt to a changing market and to scalability.
         B.5 Discuss the efficiency and maintainability of the software.
         """
@@ -246,7 +251,7 @@ class Truck:
                 SET EMPTY LIST unvisited_queue
 
                 // set package list argument to new address list with find_Address_list()
-                SET LIST package_list = CALL FUNCTION find_address_list(package_list)
+        O(N)    SET LIST package_list = CALL FUNCTION find_address_list(package_list)
 
                 // build a list of address ids from CLASS GRAPH.sorted_bidirectional to track unvisited package locations
         O(N)    FOR EACH TUPLE vertex IN Graph.sorted_bidirectional
@@ -345,7 +350,7 @@ class Truck:
         O(N^2*logN)             FOR EACH LIST package IN LIST package_list:
                                 SET INT package_id = INT p[0]
                                 IF INT package_id == INT adj_vertex:
-        O(N^3*logN)                     FOR EACH MEMORY ADDRESS package_memory_address in package[2:]:
+        O(N^3*logN)                FOR EACH MEMORY ADDRESS package_memory_address in package[2:]:
                                         APPEND INT package_memory_address.package_id_number TO LIST delivered_packages
                                         SET STRING package_memory_address.delivery_status = STRING 'delivered'
                                         IF STRING package_memory_address.delivery_status is 'delivered':
@@ -381,8 +386,11 @@ class Truck:
                 SET STRING self.delivery_time = CALL STRING FUNCTION self.set_delivery_time(FLOAT self.mileage)
 
                 RETURN route
+
+        BIG O => O(N^3 * LogN)
         B.2 Apply programming models to the scenario.
         B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
+                O(N^3 * LogN)
         B.4 Discuss the ability of your solution to adapt to a changing market and to scalability.
         B.5 Discuss the efficiency and maintainability of the software.
         """
@@ -492,7 +500,7 @@ def find_address_list(packages_list):
 
             // create a list to hold all memory addresses of packages associated with each package in the package list
             // argument and a list to hold all package ids associated with packages in the package list argument
-            FOR EACH ADDRESS package IN LIST packages_list:
+    O(N)    FOR EACH ADDRESS package IN LIST packages_list:
                 SET INT package_id == INT package.package_id_number
 
                 APPEND ADDRESS package TO LIST address_bucket_list
@@ -530,11 +538,13 @@ def find_address_list(packages_list):
 
         RETURN same_delivery_address
 
+    BIG O Total => O(N)
+
 
     B.2 Apply programming models to the scenario.
 
     B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
-          O(N^2)
+          O(N)
 
     B.4 Discuss the ability of your solution to adapt to a changing market and to scalability.
     B.5 Discuss the efficiency and maintainability of the software.
