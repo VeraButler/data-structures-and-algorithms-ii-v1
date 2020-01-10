@@ -1,0 +1,152 @@
+Section 2: Annotations
+
+RUBRIC A: ALGORITHM SELECTION
+The identified algorithm can perform the task and meets all requirements as outlined in the scenario.
+
+RUBRIC B1: LOGIC COMMENTS
+The comments align to industry standards and accurately explain the logic applied to the solution.
+
+RUBRIC B2: APPLICATION OF PROGRAMMING MODELS
+The application of programming models includes the communication protocol that is used to exchange data;
+the target host environment used to host the server application program; and the interaction semantics defined by the
+application to control connect, data exchange, and disconnect sequences.
+
+https://en.wikipedia.org/wiki/Communication_protocol
+Communication protocol is a system of rules that allow two or more entities of a communication system to transmit
+information via any kind of variation of a physical quantity. The protocol defines the rules, syntax, semantics and
+synchronization of communication and possible error recovery methods. Protocols may be implemented by hardware,
+software, or a combination of both.
+
+COMMUNICATION PROTOCOL
+Exchange of Information
+- user interface
+    - User menu to select info on all packages or a single package
+- Software
+    - main.py holds the user interface
+    - distance_table.py holds the cleaned distance data from the WGU Dist Table.csv
+    - graph.py holds the
+Target Host Environment Used to Host the Server Application Program
+Interaction Semantics Defined by the Application to Control Connect, Data Exchange, and Disconnect Sequences
+
+B3:SPACE-TIME AND BIG-O
+The evaluation shows the space-time complexity using Big O notation for each block of coding and for the entire program.
+
+B4:ADAPTABILITY
+The discussion includes the chosen algorithm’s ability to handle a growing amount of work and its scalability to
+accommodate growth.
+
+B5:SOFTWARE EFFICIENCY AND MAINTAINABILITY
+A discussion of the software’s efficiency is provided, and the discussion addresses how the software is efficient and
+easy to maintain.
+
+C:ORIGINAL CODE
+The original code runs properly and delivers all packages on time while adding the least number to the combined mileage total of all trucks.
+
+C1:IDENTIFICATION INFORMATION
+The initial comment is located within the first line of code and includes the candidate’s first name, last name, and student ID.
+
+C2:PROCESS AND FLOW COMMENTS
+Comments are found within the coding at each large block of code, improve the readability of the code, and show the intent and decisions made while developing the program.
+
+D:DATA STRUCTURE
+The submission identifies a data structure that performs well when applied to the usage described in the scenario.
+
+D1:EXPLANATION OF DATA STRUCTURE
+The submission accurately explains the data structure and how that data structure accounts for the relationship between the data points to be stored.
+
+E:HASH TABLE
+The hash table has an insertion function that includes, as input, all of the given components.
+
+F:LOOK-UP FUNCTION
+The look-up function includes all of the given data elements, completes searches and returns correct data, and lists the status of all packages.
+
+G:INTERFACE
+The interface includes the information needed for a user to communicate and use the program.
+
+G1:FIRST STATUS CHECK
+The screenshots show a listing of all packages that are loaded on each truck and the current status of each package at a time between 8:35 a.m. and 9:25 a.m.
+
+G2:SECOND STATUS CHECK
+The screenshots show a listing of all packages that are loaded on each truck and the current status of each package at a time between 9:35 a.m. and 10:25 a.m.
+
+G3:THIRD STATUS CHECK
+The screenshots show a listing of all packages that are loaded on each truck and the current status of each package at a time between 12:03 p.m. and 1:12 p.m.
+
+H:SCREENSHOTS OF CODE EXECUTION
+The screenshots capture a complete execution of the code.
+
+
+I1:STRENGTHS OF THE CHOSEN ALGORITHM
+The description includes at least 2 specific strengths of the chosen algorithm as they apply to the scenario.
+
+I2:VERIFICATION OF ALGORITHM
+The verification includes the total miles added to all trucks, and it states that all packages were delivered on time.
+
+I3:OTHER POSSIBLE ALGORITHMS
+The submission identifies 2 other algorithms that could meet the requirements of the scenario.
+
+I3A:ALGORITHM DIFFERENCES
+The description includes attributes of each algorithm identified in part I3 and how the identified attributes compare to the attributes of the algorithm used in the solution.
+
+J:DIFFERENT APPROACH
+The description includes at least 1 aspect of the process that the candidate would do differently and includes how the candidate would modify the process.
+
+K1:VERIFICATION OF DATA STRUCTURE
+The verification shows all the criteria has been met: the least number of total miles added to all trucks, all packages were delivered on time, the hash table with look-up function is present, and the reporting needed is accurate and efficient.
+
+K1A:EFFICIENCY
+The description of the efficiency of the data structure used in the solution includes what type of data is being used and how that data is being used.
+
+K1B:OVERHEAD
+The explanation includes the computational time, memory, and bandwidth aspects when handling data in this program.
+
+K1C:IMPLICATIONS
+The description addresses the changes needed when the number of packages, the number of trucks, and the number of cities increase. The description addresses the idea of control when different or numerous sub-applications or subsystems are incorporated through the expansion to numerous cities.
+
+K2:OTHER DATA STRUCTURES
+The submission identifies 2 data structures other than the one used in the solution that meet the criteria and requirements in the scenario.
+
+K2A:DATA STRUCTURE DIFFERENCES
+The description includes the attributes of each data structure identified in part K2 and compares these attributes to the attributes of the data structure used in the solution.
+
+L:SOURCES
+The submission includes in-text citations for sources that are properly quoted, paraphrased, or summarized and a reference list that accurately identifies the author, date, title, and source location as available.
+
+M:PROFESSIONAL COMMUNICATION
+Content reflects attention to detail, is organized, and focuses on the main ideas as prescribed in the task or chosen by the candidate. Terminology is pertinent, is used correctly, and effectively conveys the intended meaning. Mechanics, usage, and grammar promote accurate interpretation and understanding.
+
+
+1.  Describe at least  two strengths of the algorithm you chose.
+
+2.  Verify that the algorithm you chose meets all  the criteria and requirements given in the scenario.
+
+3.  Identify two other algorithms that could be used and would have met the criteria and requirements given in the scenario.
+
+a.  Describe how each  algorithm identified in part I3 is different from the algorithm you chose to use in the solution.
+
+
+J.  Describe what you would do differently if you did this project again.
+
+
+
+K.  Justify your choice of data structure by doing the following:
+
+1.  Verify that the data structure you chose meets all  the criteria and requirements given in the scenario.
+
+a.  Describe the efficiency of the data structure chosen.
+
+b.  Explain the expected overhead when linking to the next data item.
+
+c.  Describe the implications of when more package data is added to the system or other changes in scale occur.
+
+2.  Identify two other data structures that can meet the same criteria and requirements given in the scenario.
+
+a.  Describe how each  data structure identified in part K2 is different from the data structure you chose to use in the solution.
+
+
+
+L.   Acknowledge sources, using in-text citations and references, for content that is quoted, paraphrased, or summarized.
+
+
+
+M.  Demonstrate professional communication in the content and presentation of your submission.

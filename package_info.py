@@ -1,6 +1,5 @@
 import csv
-from distance_table import address_hash
-from typing import List, Any
+from first_draft.distance_table import address_hash
 
 pkgFile = './WGUPS Package File.csv'
 
@@ -89,17 +88,19 @@ class Package:
         if self.address_id is -1:
             self.address_id = 23
 
-        if self.delivery_deadline != 'EOD':
-            packages_with_delivery_deadlines.append([self.package_id_number, self.delivery_deadline])
-        else:
-            packages_without_delivery_deadlines.append([self.package_id_number, self.delivery_deadline])
-
-        if self.special_notes:
-            packages_with_special_notes.append([self.package_id_number, self.special_notes])
-
         # place package into correct special notes list to be loaded onto appropriate trucks in trucks.py
         p_id = self.package_id_number
         s = self.special_notes
+        d = self.delivery_deadline
+
+        if self.delivery_deadline != 'EOD':
+            packages_with_delivery_deadlines.append([p_id, d])
+        else:
+            packages_without_delivery_deadlines.append([p_id, d])
+
+        if self.special_notes:
+            packages_with_special_notes.append([p_id, s])
+
         if 'Can only be on truck' in s:
             # split special note for iterable string
             split = s.split()
@@ -142,7 +143,7 @@ class Package:
         if no_deadline and not s:
             naked_packages.append(p_id)
 
-        master_package_id_list.append(self.package_id_number)
+        master_package_id_list.append(p_id)
 
     def info(self):
         info = '''

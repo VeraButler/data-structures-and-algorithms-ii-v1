@@ -35,35 +35,75 @@ delivered_packages = []
 address_for_package_found = []
 loaded_packages = []
 
+# number of drivers available is 2
+total_number_of_drivers_available = 2
+# SET number_of_drivers = 2
+number_of_drivers = 2
+def check_driver_count():
+    if number_of_drivers < total_number_of_drivers_available:
+        return False
+    else:
+        return True
 
 class Truck:
-    # init class
+    # init class with data members
     def __init__(self, truck):
-        # truck name
+
+        # SET STRING truck name = ARGUMENT STRING truck - used to track packages
         self.name = truck
-        # SET self.number_of_packages = 0
+
+        # Track the number of packages on each truck
+        # SET INT self.number_of_packages = INT 0
         self.number_of_packages = 0
+
         # Maximum number of packages allowed on each Truck is 16
-        # SET max_packages = 16
+        # SET INT max_packages = INT 16
         self.max_packages = 16
+
         # Trucks travel at an average speed of 18 miles per hour.
-        self.average_speed = 18
+        # SET FLOAT self.average_speed = FLOAT 18
+        self.average_speed = float(18)
+
         # Each driver stays with the same truck as long as that truck is in service.
-        self.driver = 1
+        self.driver = 0
+
         # Drivers leave the hub at 8:00 a.m., with the truck loaded, and can return to the hub for packages if needed.
         # The day ends when all 40 packages have been delivered.
+        # SET INT self.time = INT 8 -> 8 for 8:00 AM
         self.time = 8
+
         # There is up to one special note for each package.
+        # SET STRING self.package_notes = DEFAULT STRING 'No notes.'
         self.package_notes = 'No notes.'
+
         # track the distance driven
-        self.distance = 0
-        # package information
+        # SET FLOAT self.distance = FLOAT 0
+        self.distance = float(0)
+
+        # Package list to hold package ids on the truck
+        # SET LIST self.all_package_info = EMPTY LIST
         self.all_package_info = []
-        # set at hub to True
+
+        # Boolean to track if truck is at the hub or en route
+        # SET BOOLEAN self.at_hub = TRUE
         self.at_hub = True
+
+        # Boole to track the trucks max capacity of 16 packages
+        # SET self.full_truck = FALSE
         self.full_truck = False
 
-        # delivery times
+        """
+        Track Mileage and Time
+        
+        SET self.mileage = 0
+        SET self.leave_time_hour = 8
+        SET self.leave_time_minutes = 0
+        SET self.hours = 0 
+        SET self.hours_str = ''
+        SET self.minutes = 0
+        SET self.minutes_str = ''
+        SET delivery_time = 0
+        """
         self.mileage = 0
         self.leave_time_hour = 8
         self.leave_time_minutes = 0
@@ -120,6 +160,10 @@ class Truck:
         frac, whole = math.modf(miles / self.average_speed)
         self.hours = round(whole) + self.leave_time_hour
         self.minutes = round(frac * 60) + self.leave_time_minutes
+
+        # IF self.minutes > 60 THEN subtract 60
+        if self.minutes > 60:
+            self.minutes = self.minutes - 60
 
         # add zero for single digit minutes
         if len(str(self.minutes)) < 2:
@@ -252,7 +296,8 @@ class Truck:
 
         """
         B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
-
+                SET self.driver = 1
+                SET number_of_drivers = number_of_drivers - self.driver
         O(1)    IF LIST package_list IS EMPTY
                     RETURN
 
@@ -434,6 +479,9 @@ class Truck:
         B.4 Discuss the ability of your solution to adapt to a changing market and to scalability.
         B.5 Discuss the efficiency and maintainability of the software.
         """
+        if check_driver_count() is True:
+            self.driver = 1
+
         # if the package_list parameter is empty return
         if not package_list:
             return
@@ -481,7 +529,6 @@ class Truck:
                             package.delivery_status = 'delivered'
                             if package.delivery_status is 'delivered':
                                 package.delivery_time = self.set_delivery_time(self.mileage)
-                                print('package delivery time', package.delivery_time)
                             flag = True
                             break
                     if flag:
@@ -528,6 +575,9 @@ class Truck:
                 self.mileage += float(miles_for_current_vertex)
                 route.append(0)
         self.delivery_time = self.set_delivery_time(self.mileage)
+
+        self.driver = 0
+
         return route
 
 
@@ -737,9 +787,14 @@ print('Total Mileage for All 3 Trucks:', total_miles)
 
 # PRINT a list of delivered packages in ascending order
 delivered_packages.sort()
-print(delivered_packages)
+print('Delivered Packages:', delivered_packages)
 
-
+if len(delivered_packages) == len(package_info.master_package_list):
+    print("All packages were delivered.")
+else:
+    for p in package_info.master_package_id_list:
+        if p not in delivered_packages:
+            print("Undelivered package:", p.package_id_number)
 
 
 
