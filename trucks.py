@@ -232,7 +232,7 @@ class Truck:
                 # append package to package info
                 self.all_package_info.append(package_memory_address)
                 loaded_packages.append(package_id)
-                package_info.master_package_id_list.remove(package_id)
+                # package_info.master_package_id_list.remove(package_id)
         else:
             self.full_truck = True
         # else the truck is full, set boolean full_truck to True
@@ -525,8 +525,10 @@ class Truck:
                             self.mileage += miles
                             # add time of delivery for truck and package
                             # deliver package
-                            delivered_packages.append(p[2].package_id_number)
-                            package.delivery_status = 'delivered'
+                            if package.package_id_number in package_info.master_package_id_list:
+                                delivered_packages.append(p[2].package_id_number)
+                                p[2].delivery_status = 'delivered'
+                                package_info.master_package_id_list.remove(p[2].package_id_number)
                             if package.delivery_status is 'delivered':
                                 package.delivery_time = self.set_delivery_time(self.mileage)
                             flag = True
@@ -557,8 +559,10 @@ class Truck:
                     for p in package_list:
                         if p[0] == adj_vertex:
                             for package in p[2:]:
-                                delivered_packages.append(package.package_id_number)
-                                package.delivery_status = 'delivered'
+                                if package.package_id_number in package_info.master_package_id_list:
+                                    delivered_packages.append(package.package_id_number)
+                                    package.delivery_status = 'delivered'
+                                    package_info.master_package_id_list.remove(package.package_id_number)
                                 if package.delivery_status is 'delivered':
                                     package.delivery_time = self.set_delivery_time(self.mileage)
                             package_list.remove(p)
@@ -668,13 +672,14 @@ def find_address_list(packages_list):
         address_id = p.address_id
         package_id = p.package_id_number
         if [address_id, street_address] not in same_delivery_address:
-            same_delivery_address.append([address_id, street_address])
+            same_delivery_address.append([address_id, street_address, p])
         for s in same_delivery_address:
             if s[1] == street_address:
                 index = same_delivery_address.index(s)
                 if package_id not in found_package_list:
                     found_package_list.append(package_id)
-                    same_delivery_address[index].append(p)
+                    if p not in same_delivery_address[index]:
+                        same_delivery_address[index].append(p)
     return same_delivery_address
 
 
@@ -765,19 +770,16 @@ The correct address is 410 S State St., Salt Lake City, UT 84111.
 """
 
 # check for missed packages and add them back to the master_package_id_list
-for p in package_info.master_package_list:
-    # IF there is no delivery time THEN add the package back to the master package list
-    if p.delivery_time is '':
-        package_info.master_package_id_list.append(p.package_id_number)
+undelivered_packages = package_info.master_package_id_list
+undelivered_packages.insert(0, "undelivered")
+
 
 # SET package #9 to new address
 package_info.p9.delivery_address = '410 S State St'
 package_info.p9.address_id = 19
 T2.leave_time_minutes = T1.minutes
-T2.load_truck(package_info.truck_two_only)  # 4 packages - 2, 18, 36, 38
-T2.load_truck(package_info.delayed_flight)  # 4 packages - 6, 25, 28, 32
-T2.load_truck(package_info.master_package_id_list)  # make sure no packages were missed
-T2.load_truck(package_info.wrong_address)  # 1 package - 9
+T2.load_truck(undelivered_packages)  # make sure no packages were missed
+# T2.load_truck(['wrong', 9])  # 1 package - 9
 T2.route(0, T2.all_package_info)
 T2.set_delivery_time(T2.mileage)  # set self.delivery_time to calculated delivery time
 
@@ -792,9 +794,10 @@ print('Delivered Packages:', delivered_packages)
 if len(delivered_packages) == len(package_info.master_package_list):
     print("All packages were delivered.")
 else:
-    for p in package_info.master_package_id_list:
-        if p not in delivered_packages:
-            print("Undelivered package:", p.package_id_number)
+    print(package_info.master_package_id_list)
+    for p in package_info.master_package_list:
+        if p.package_id_number not in delivered_packages:
+            print("Undelivered:", p.package_id_number)
 
 
 

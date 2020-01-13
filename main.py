@@ -134,7 +134,11 @@ def look_up_package():
             if get_user_need == '2':
                 print(p.info())
 
-
+def check_for_late_packages():
+    for p in package_info.master_package_list:
+        if p.special_notes:
+            print(p.package_id_number, p.special_notes)
+check_for_late_packages()
 look_up_package()
 
 

@@ -24,9 +24,18 @@ Exchange of Information
 - Software
     - main.py holds the user interface
     - distance_table.py holds the cleaned distance data from the WGU Dist Table.csv
-    - graph.py holds the
+    - graph.py holds the distances from hub, bidirectional adjacency list, and bidirectional sorted adjacency list
+
 Target Host Environment Used to Host the Server Application Program
+- host environment should be WGUPS's server of choice
+
 Interaction Semantics Defined by the Application to Control Connect, Data Exchange, and Disconnect Sequences
+Control Connect
+- run main.py
+Data Exchange
+- input through the user menu -> print information needed
+Disconnect Sequence
+- from the user menu in main.py type 'exit'
 
 B3:SPACE-TIME AND BIG-O
 The evaluation shows the space-time complexity using Big O notation for each block of coding and for the entire program.
