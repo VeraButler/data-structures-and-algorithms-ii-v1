@@ -100,8 +100,11 @@ class Package:
 
         if self.delivery_deadline != 'EOD':
             packages_with_delivery_deadlines.append([p_id, d])
+            print(self.delivery_deadline)
         else:
             packages_without_delivery_deadlines.append([p_id, d])
+            # delete EOD
+            self.delivery_deadline = ''
 
         if self.special_notes:
             packages_with_special_notes.append([p_id, s])

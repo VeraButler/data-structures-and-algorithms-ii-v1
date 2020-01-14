@@ -191,6 +191,27 @@ class Truck:
 
         return str(self.leave_time_hour) + ':' + str(leave_time_minutes) + meridies
 
+    def get_package_delivery_deadline(self, package, delivered):
+        pd = package.delivery_deadline
+
+        deadline_hours = pd[0:2]
+        deadline_minutes = pd[3:5]
+        deadline_meridies = pd[-2:]
+
+        delivered.split(":")
+        delivered_hours = delivered[0]
+        delivered_minutes = delivered[2]+delivered[3]
+        delivered_meridies = delivered[-2:]
+
+        if (deadline_hours >= delivered_hours and deadline_minutes >= delivered_minutes) \
+            or\
+            (deadline_meridies is 'AM' and delivered_meridies is 'PM'):
+            # if false the package is late
+            return False
+        else:
+            return True
+
+
     def add_package(self, package_id):
         # find complete package information
         # check for full truck, if not full then add package_info to truck
@@ -565,6 +586,10 @@ class Truck:
                                     package_info.master_package_id_list.remove(package.package_id_number)
                                 if package.delivery_status is 'delivered':
                                     package.delivery_time = self.set_delivery_time(self.mileage)
+                                if self.get_package_delivery_deadline(package, '9:00 AM') is False:
+                                    print("Package", package.package_id_number, "was delivered late.")
+                                else:
+                                    print("Package", package.package_id_number, "was delivered on time.")
                             package_list.remove(p)
                     break
             route.append(unvisited_queue.pop(unvisited_queue.index(adj_vertex)))
