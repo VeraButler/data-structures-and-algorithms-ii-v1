@@ -100,7 +100,6 @@ class Package:
 
         if self.delivery_deadline != 'EOD':
             packages_with_delivery_deadlines.append([p_id, d])
-            print(self.delivery_deadline)
         else:
             packages_without_delivery_deadlines.append([p_id, d])
             # delete EOD
@@ -160,6 +159,7 @@ class Package:
         info = '''
         Package Id Number: {}
         Delivery Address: {}
+        Delivery Address ID: {}
         Delivery Deadline: {}
         Delivery Time: {}
         Delivery City: {}
@@ -169,7 +169,7 @@ class Package:
         Delivery Status: {}
         Loaded on Truck Number: {}
         Special Notes: {}
-        '''.format(self.package_id_number, self.delivery_address, self.delivery_deadline, self.delivery_time,
+        '''.format(self.package_id_number, self.delivery_address, self.address_id, self.delivery_deadline, self.delivery_time,
                    self.delivery_city, self.delivery_state, self.delivery_zip_code, self.package_weight,
                    self.delivery_status, self.loaded_on_truck, self.special_notes)
         return info
@@ -233,6 +233,7 @@ p40 = Package(pkg_tbl_hash, 40)
 # print(truck_three_only)
 # print(wrong_address)
 
+print(p3.info())
 
 
 

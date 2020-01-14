@@ -4,7 +4,7 @@ import csv
 distance_table = './WGU Dist Table.csv'
 
 """
-Start Clean Data Code Blocks
+Start Format Distance Data
 
 O(1)    SET EMPTY LIST dist_table_hash
 O(1)    SET EMPTY LIST distances
@@ -61,52 +61,90 @@ TOTAL COMPLEXITY FOR BLOCK = O(N^2)
         //start new for loop for readability on dist_tbl_hash
 O(N)    FOR EACH row IN dist_tbl_hash
             //base case - the hub
-            IF row ELEMENT 0 is 0
+O(1)        IF row ELEMENT 0 is 0
                 DELETE row[0]
                 SET STRING street_address = "4001 South 700 East"
                 
-        for row in dist_tbl_hash:
-            if row[0] is 0:
-                del row[0]
-                street_address = "4001 South 700 East"
-                row[0][1] = street_address
-                address_hash.append([1, street_address])
-            s = str(row[2])
+O(N)    FOR EACH LIST row IN LIST dist_tbl_hash:
+            //    base case  //
+O(1)        IF INT row[0] IS 0:
+                DELETE row[0]
+                SET STRING street_address = "4001 South 700 East"
+                SET STRING row[0][1] = street_address
+                APPEND LIST [1, street_address] TO LIST address_hash
+            SET STRING s = TO_STRING(row[2])
             # https://stackoverflow.com/questions/10059554/inserting-characters-at-the-start-and-end-of-a-string
-            street_address = ""
-            for i, c in enumerate(s):
-                if c is "(":
+            SET STRING street_address = EMPTY STRING
+            
+            // https://mindmajix.com/python-enumerate-with-example
+            // enumerate has a BIG O time complexity of O(N) because it iterates over the length of the list by an  //
+            // index and then further making use of this index to get the value at the location:                    //
+            //      EXAMPLE                                                                                         //            
+            //      for i in length(list):                                                                          //            
+            //         for j in length(i:                                                                           //
+            //                  do stuff                                                                            //        
+O(N^2)      FOR EACH character IN ENUMERATE(s)
+O(1)            IF character IS "(":
                     # https://guide.freecodecamp.org/python/is-there-a-way-to-substring-a-string-in-python/
-                    # clean the street address of it's zipcode
-                    street_address = s[1:(i)]
-                    row[2] = street_address
-                    address_hash.append([row[0], street_address])
-                    break
-            # build distances_graph
-            if isinstance(row[0], list) is False:
-                temp_list = [row[0]]
-                temp_list.extend(row[3::])
-                distances.append(temp_list)
-            u += 1
-            v += 1
+                    // extract zipcode                                          //
+                    // i = location of "(" because of the IF statement above    //
+                    // -1 = location of the last element in the list and is ")" //
+                    SET STRING zipcode = s[i:-1]
+                    
+                    // extract street address from character
+                    // get all characters up to the first "("
+                    SET STRING street_address = s[1:(i)]
+                    
+                    SET STRING row[2] = street_address
+                    APPEND LIST [row[0], street_address, zipcode] TO LIST address_hash
+                    BREAK
+                END IF
+            END FOR
+            
+            // build distances_graph //
+O(1)        IF row[0] IS NOT A LIST:
+                SET LIST temp_list = [row[0]]
+                
+                // row[3::] is only the distances (miles) between points //
+                EXTEND LIST temp_list WITH row[3::]
+                APPEND LIST temp_list TO distances
+            END IF
         
-        # initialize counter for column numbers
-            # use for creating symmetrical graph
-            # if col is empty then replace with row[0] -> count
-        for row in distances:
-            # fix last element from ' ' to ''
-            row[-1] = ''
-            for i, col in enumerate(row):
-                if col is '':
-                    # get hash id for row
-                    u = row[0]
-                    # set col to distance from distance A -> B
-                    a_to_b = distances[i-1][u]
-                    row[i] = a_to_b
-            # fix index
-            del row[0]
-        # END clean distance data
+        // initialize counter for column numbers                //
+        //    use for creating symmetrical graph                //
+        //    if col is empty then replace with row[0] -> count //
+O(N)    FOR EACH LIST row INT LIST distances:
+            // fix last element from ' ' to '' //
+            SET row[-1] = ''
+O(N^3)      FOR EACH column IN ENUMERATE(row):
+O(1)           IF column IS EMPTY STRING:
 
+                    // get hash id for current_row  //
+                    SET INT current_row_id = row[0]
+                    
+                    // set col to distance from distance A -> B //
+                    // distances[i-1] is the previous row       //
+                    // the index of the current_row is also the //
+                    // index of the column of the previous row  //
+                    // this is the way a bidirectional graph is //
+                    SET STRING a_to_b = distances[i-1][current_row_id]
+                    
+                    // set the current_column (i) to the correct mileage (a_to_b) //
+                    SET row[i] = a_to_b
+                END IF
+            END FOR
+            
+            // remove the row id because which serves as the location id        //
+            // the location id (vertex) is assumed as the list element number   //
+            // i.e row[0] (HUB) is index 0/location_id 0,                       // 
+            //     row[1] index 1/location_id 1 ... row[N]                      //
+            
+            DELETE row[0]
+            
+        END FOR
+        # END format distance data
+B3:SPACE-TIME AND BIG-O
+O(N^3)
 """
 # hash for distances
 dist_tbl_hash = []
@@ -267,7 +305,7 @@ Currently the distance_table looks like:
     // set the distance from NODE A -> NODE B = matching_distance_in_corresponding_node
 O(N)    FOR EACH row IN distances
             SET LAST ELEMENT to ''
-O(N)        FOR EACH column IN ENUMERATE(row)
+O(N^2)      FOR EACH column IN ENUMERATE(row)
 O(1)            IF column IS EMPTY
                     THEN 
                     // save current vertex id
@@ -342,49 +380,87 @@ for row in distances:
     # remove vertex_id, location_id is assumed to be row_id
     del row[0]
 
+# convert all miles to type float
+i = 0
+for row in distances:
+    j =0
+    for col in row:
+        if i == 26 and j == 26:
+            break
+        print(i, j, col)
+        col = float(col)
+        j += 1
+    i += 1
 
-# START print functions
+
+"""
+    DEFINE PRINT FUNCTION print_street_address_only()
+    
+O(N)    FOR EACH LIST address IN address_hash:
+            // address = [location_id, street_address, zipcode]
+            PRINT(address)
+"""
 def print_street_address_only():
     for a in address_hash:
         print(a)
 
 
 
-# Graph class
+""" 
+CLASS GRAPH
+
+// helper function for class graph  //
+        DEFINE FUNCTION build_bidirectional_graph()
+            // first line is a boolean flag used to skip the first line of the csv file //
+            SET BOOLEAN first_line = True
+            
+            // build the distance graph
+            SET LIST new_dist_graph TO EMPTY LIST
+            
+            // u = row index    //
+            // v = column index //
+O(N^2)      FOR EACH vertex IN ENUMERATE(u, dist_tbl_hash)
+                // skip first line
+O(1)            IF BOOLEAN first_line IS TRUE
+                    SET BOOLEAN first_line = FALSE
+                    CONTINUE
+                END IF
+                
+                FOR EACH miles IN ENUMERATE(v, dist_tbl_hash[u])
+            
+"""
 def build_bidirectional_distance_graph():
-    # test variables
-    first_line = True
-    empty = ''
+    distances_only_table = dist_tbl_hash[1:]
+    for t in distances_only_table:
+        del t[0]
+        del t[0]
+        del t[0]
 
     # create new distance graph
     new_dist_graph = []
-    for u, d in enumerate(dist_tbl_hash):
-        if first_line:  # skip key:address line
-            first_line = False
-            continue
-        for v, e in enumerate(dist_tbl_hash[u]):
-            # skip first three elements
-            if v > 2:
-                if e is '':
-                    #  find corresponding value in row to build bidirectional graph
-                    d[v] = dist_tbl_hash[v - 2][u + 2]  # subtract 2 from v and add 2 to u to correct for skipped lines
-        new_dist_graph.append(d)
+    # u = row index
+    # v = 1 => column index, 1 to skip the first column which is already set in each vertex
+    u = 0
+    v = 1
+    for d in distances_only_table:
+        # v = column index
+        for e in distances_only_table[u]:
+            if e is '':
+                #  find corresponding value in row to build bidirectional graph
+                # offset d[v] by negative one for zero based indexing
+                d[v-1] = float(dist_tbl_hash[v][u])  # subtract 2 from v and add 2 to u to correct for skipped lines
+            v += 1
+        v = 1
+        u += 1
 
-    #  for each row in new_dist_graph
-    #       delete address in each row
-    #       key:value pairs for address_id:mileage
-    for row in new_dist_graph:
-        row[0] = row[0] - 1
-        del row[1]
-    for i, row in enumerate(new_dist_graph):
-        for j, el in enumerate(row):
-            if j > 1:
-                row[j] = (j - 2, float(el))
-        prepare_row_for_sort = row[2::]
-        save_row = [row[0], row[1]]
-        prepare_row_for_sort.sort(key=lambda x: x[1])
-        save_row.append(prepare_row_for_sort)
-        new_dist_graph[i] = save_row
+        new_dist_graph.append(d)
+        new_dist_graph.sort()
+
+        # convert all strings to float
+        for row in new_dist_graph:
+            for col in row:
+                col = float(col)
+
     return new_dist_graph
 
 

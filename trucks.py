@@ -26,6 +26,7 @@ import package_info
 from graph import g
 import math
 
+
 """
 B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
         SET GLOBAL EMPTY LISTS delivered_packages, address_for_packages_found, loaded_packages
@@ -516,49 +517,49 @@ class Truck:
         # set package list to address list
         package_list = find_address_list(package_list)
         # build a list of address ids to track unvisited package locations
-        for vertex in g.sorted_bidirectional:
-            for p in package_list:
-                package_location = p[0]
-                location_vertex = vertex[0]
-                if package_location == location_vertex and package_location not in unvisited_queue:
-                    unvisited_queue.append(package_location)
+        for p in package_list:
+            package_location = p[0]
+            if package_location not in unvisited_queue:
+                unvisited_queue.append(package_location)
+
 
         route = []
         while len(unvisited_queue) > 0:
             # Visit vertex with closest distance from current location
             # smallest index is also the next_vertex
-            hub = g.sorted_bidirectional[0][2]
+            hub = g.adjacency_list[0]
             if start_vertex is 0:
                 # # look for packages with high priority
                 # for p in package_list:
                 #     for q in p[2:]:
                 #         if q.delivery_deadline == '9:00 AM':
                 #             route.append(q.address_id)
+                # TODO FIX route for new graph
                 route.append(0)
                 flag = False
                 for vertex in hub:
+                    nearest_neighbor = g.sorted_bidirectional[0].index(vertex)
                     for p in package_list:
-                        if p[0] == vertex[0]:
+                        if p[0] == nearest_neighbor:
                             address_id = p[0]
                             package = p[2]
-                            miles = vertex[1]
-                            smallest_index = address_id
+                            miles = vertex
                             self.mileage += miles
                             # add time of delivery for truck and package
                             # deliver package
                             if package.package_id_number in package_info.master_package_id_list:
-                                delivered_packages.append(p[2].package_id_number)
-                                p[2].delivery_status = 'delivered'
+                                delivered_packages.append(package.package_id_number)
+                                package.delivery_status = 'delivered'
                                 package_info.master_package_id_list.remove(p[2].package_id_number)
-                            if package.delivery_status is 'delivered':
                                 package.delivery_time = self.set_delivery_time(self.mileage)
+                                print(package.info())
                             flag = True
                             break
                     if flag:
                         break
                 unvisited_queue.remove(address_id)
                 route.append(address_id)
-                next_vertex = g.sorted_bidirectional[address_id][2]
+                next_vertex = g.sorted_bidirectional[address_id]
                 start_vertex = 1
 
 
@@ -570,11 +571,12 @@ class Truck:
             # Check potential path lengths from the current vertex to all neighbors.
             # If shorter path from start_vertex to adj_vertex is found,
             # update adj_vertex's distance and predecessor
+            i = 0
             for vertex in next_vertex:
-                vertex_id = vertex[0]
-                if vertex_id in unvisited_queue and vertex_id != 0 and vertex[1] != 0.0:
+                vertex_id = i
+                if vertex_id in unvisited_queue and vertex_id != 0 and vertex != 0.0:
                     adj_vertex = vertex_id
-                    miles = vertex[1]
+                    miles = vertex
                     self.mileage += float(miles)
                     # deliver package
                     for p in package_list:
@@ -592,17 +594,21 @@ class Truck:
                                     print("Package", package.package_id_number, "was delivered on time.")
                             package_list.remove(p)
                     break
+                i += 1
             route.append(unvisited_queue.pop(unvisited_queue.index(adj_vertex)))
-            next_vertex = g.sorted_bidirectional[adj_vertex][2]
+            next_vertex = g.sorted_bidirectional[adj_vertex]
 
         # go back to hub - use adjacency list which is just a list of the miles in order of location id
+        hub = g.sorted_bidirectional[0]
+        i = 0
         for vertex in hub:
-            location_id = vertex[0]
-            miles_for_current_vertex = float(vertex[1])
+            location_id = i
+            miles_for_current_vertex = float(vertex)
             last_index_in_route = route[-1]
-            if location_id == last_index_in_route:
+            if hub[location_id] == last_index_in_route:
                 self.mileage += float(miles_for_current_vertex)
                 route.append(0)
+            i += 1
         self.delivery_time = self.set_delivery_time(self.mileage)
 
         self.driver = 0
