@@ -375,22 +375,27 @@ for row in distances:
             u = row[0]
             # set col to distance from distance A -> B
             a_to_b = distances[i-1][u]
+            if a_to_b is not '':
+                row[i] = a_to_b
+            else:
+                row[i] = '0.0'
 
-            row[i] = a_to_b
+# convert all elements from string to float
+i = 0
+j = 0
+for row in distances:
+    for col in row:
+        distances[i][j] = float(col)
+        print(distances[i][j])
+        j += 1
+    j = 0
+    i += 1
+
+
+
     # remove vertex_id, location_id is assumed to be row_id
     del row[0]
 
-# convert all miles to type float
-i = 0
-for row in distances:
-    j =0
-    for col in row:
-        if i == 26 and j == 26:
-            break
-        print(i, j, col)
-        col = float(col)
-        j += 1
-    i += 1
 
 
 """
@@ -448,20 +453,17 @@ def build_bidirectional_distance_graph():
             if e is '':
                 #  find corresponding value in row to build bidirectional graph
                 # offset d[v] by negative one for zero based indexing
-                d[v-1] = float(dist_tbl_hash[v][u])  # subtract 2 from v and add 2 to u to correct for skipped lines
+                d[v-1] = (v-1, float(dist_tbl_hash[v][u]))  # subtract 2 from v and add 2 to u to correct for skipped lines
+            else:
+                d[v-1] = (v-1, float(d[v-1]))
             v += 1
         v = 1
         u += 1
-
+        d.sort(key=lambda x: x[1])
         new_dist_graph.append(d)
-        new_dist_graph.sort()
-
-        # convert all strings to float
-        for row in new_dist_graph:
-            for col in row:
-                col = float(col)
 
     return new_dist_graph
+
 
 
 class Graph:
@@ -477,4 +479,10 @@ class Graph:
         self.distances_from_hub = []
         self.address_list = address_hash
 
+
 g = Graph()
+for row in g.sorted_bidirectional:
+    print(row)
+
+
+
