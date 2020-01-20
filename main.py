@@ -13,12 +13,16 @@ This function should return all information about each package, including delive
 
 
 def format_time(time):
+    if 8 < len(time) < 7:
+        print("INVALID ENTRY. PLEASE TRY AGAIN.")
+        look_up_package()
+
     meridies = time[-2:]
     st_split = time.split(':')
     hour = int(st_split[0])
     minutes = int(time[-5:-3])
 
-    if hour not in range(1, 12, 1):
+    if hour not in range(1, 24, 1):
         print("INVALID HOUR. PLEASE TRY AGAIN.")
         look_up_package()
 
@@ -57,6 +61,7 @@ def look_up_package():
 
         if get_user_need.lower() not in ['1', '2', 'exit']:
             print("IMPROPER INPUT. PLEASE TRY AGAIN.")
+            look_up_package()
 
         if get_user_need.lower() == 'exit':
             print("Goodbye.")
@@ -72,7 +77,7 @@ def look_up_package():
         # save start and end time as strings for printing later
         start_time_string = start_time
         end_time_string = end_time
-
+        print("PACKAGE INFO BETWEEN TIMES", start_time_string, "AND", end_time_string + ".")
         # split start and end time strings into hours and minutes
         start_time = format_time(start_time)
         end_time = format_time(end_time)
@@ -136,8 +141,15 @@ def look_up_package():
 
 def check_for_late_packages():
     for p in package_info.master_package_list:
-        if p.special_notes:
-            print(p.package_id_number, p.special_notes)
+        if p.delivery_deadline and p.delivery_deadline < p.delivery_time:
+            late_packages_flag = False
+        else:
+            late_packages_flag = True
+            "THERE ARE LATE PACKAGES!"
+    if late_packages_flag:
+        ("Package", p.package_id_number, "was delivered late.")
+    else:
+        print("All packages were delivered ON TIME.")
 check_for_late_packages()
 look_up_package()
 

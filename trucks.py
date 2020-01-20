@@ -40,29 +40,35 @@ loaded_packages = []
 total_number_of_drivers_available = 2
 # SET number_of_drivers = 2
 number_of_drivers = 2
+
+
 def check_driver_count():
     if number_of_drivers < total_number_of_drivers_available:
         return False
     else:
         return True
 
+
 class Truck:
     # init class with data members
     def __init__(self, truck):
 
-        # SET STRING truck name = ARGUMENT STRING truck - used to track packages
-        self.name = truck
+        # update this list when new trucks are added to the route
+        truck_ids_list = ['T1', 'T2', 'T3']
+
+        # self.name should be limited to the list truck ids
+        if truck in truck_ids_list:
+            self.name = truck
+        else:
+            print("Invalid truck ID. Please enter T1, T2, or T3 or update the truck_ids_list in the Truck class.")
 
         # Track the number of packages on each truck
-        # SET INT self.number_of_packages = INT 0
         self.number_of_packages = 0
 
         # Maximum number of packages allowed on each Truck is 16
-        # SET INT max_packages = INT 16
         self.max_packages = 16
 
         # Trucks travel at an average speed of 18 miles per hour.
-        # SET FLOAT self.average_speed = FLOAT 18
         self.average_speed = float(18)
 
         # Each driver stays with the same truck as long as that truck is in service.
@@ -70,41 +76,25 @@ class Truck:
 
         # Drivers leave the hub at 8:00 a.m., with the truck loaded, and can return to the hub for packages if needed.
         # The day ends when all 40 packages have been delivered.
-        # SET INT self.time = INT 8 -> 8 for 8:00 AM
         self.time = 8
 
         # There is up to one special note for each package.
-        # SET STRING self.package_notes = DEFAULT STRING 'No notes.'
         self.package_notes = 'No notes.'
 
         # track the distance driven
-        # SET FLOAT self.distance = FLOAT 0
         self.distance = float(0)
 
         # Package list to hold package ids on the truck
-        # SET LIST self.all_package_info = EMPTY LIST
         self.all_package_info = []
 
         # Boolean to track if truck is at the hub or en route
-        # SET BOOLEAN self.at_hub = TRUE
         self.at_hub = True
 
         # Boole to track the trucks max capacity of 16 packages
-        # SET self.full_truck = FALSE
         self.full_truck = False
 
-        """
-        Track Mileage and Time
-        
-        SET self.mileage = 0
-        SET self.leave_time_hour = 8
-        SET self.leave_time_minutes = 0
-        SET self.hours = 0 
-        SET self.hours_str = ''
-        SET self.minutes = 0
-        SET self.minutes_str = ''
-        SET delivery_time = 0
-        """
+        # mileage and time need to be tracked in order to update package_info.load_time, package_info.delivery_time,
+        # and package_info.delivery_status
         self.mileage = 0
         self.leave_time_hour = 8
         self.leave_time_minutes = 0
@@ -201,17 +191,16 @@ class Truck:
 
         delivered.split(":")
         delivered_hours = delivered[0]
-        delivered_minutes = delivered[2]+delivered[3]
+        delivered_minutes = delivered[2] + delivered[3]
         delivered_meridies = delivered[-2:]
 
         if (deadline_hours >= delivered_hours and deadline_minutes >= delivered_minutes) \
-            or\
-            (deadline_meridies is 'AM' and delivered_meridies is 'PM'):
+                or \
+                (deadline_meridies is 'AM' and delivered_meridies is 'PM'):
             # if false the package is late
             return False
         else:
             return True
-
 
     def add_package(self, package_id):
         # find complete package information
@@ -522,8 +511,8 @@ class Truck:
             if package_location not in unvisited_queue:
                 unvisited_queue.append(package_location)
 
-
         route = []
+        address_id = 0
         while len(unvisited_queue) > 0:
             # Visit vertex with closest distance from current location
             # smallest index is also the next_vertex
@@ -551,7 +540,6 @@ class Truck:
                                 package.delivery_status = 'delivered'
                                 package_info.master_package_id_list.remove(p[2].package_id_number)
                                 package.delivery_time = self.set_delivery_time(self.mileage)
-                                print(package.info())
                             flag = True
                             break
                     if flag:
@@ -560,7 +548,6 @@ class Truck:
                 route.append(address_id)
                 next_vertex = g.sorted_bidirectional[address_id]
                 start_vertex = 1
-
 
             # next_vertex is the closest distance in the adjacency list
             #   it is the first occurence of a location that is still in the unvisited list
@@ -708,7 +695,6 @@ def find_address_list(packages_list):
     return same_delivery_address
 
 
-
 """
 TRUCKS
 
@@ -740,7 +726,6 @@ truck_three_only = ["Load on this Truck two only"]
 wrong_address = ["Wrong Address"]
 """
 
-
 """
 TRUCK 1
 
@@ -756,9 +741,9 @@ THEN SET the delivery_time for T1
 
 """
 T1 = Truck('T1')
-T1.load_truck(package_info.truck_one_only) # 0 packages
-T1.load_truck(package_info.packages_with_delivery_deadlines) # 14 packages
-T1.load_truck(package_info.naked_packages) # until full
+T1.load_truck(package_info.truck_one_only)  # 0 packages
+T1.load_truck(package_info.packages_with_delivery_deadlines)  # 14 packages
+T1.load_truck(package_info.naked_packages)  # until full
 T1.route(0, T1.all_package_info)
 T1.set_delivery_time(T1.mileage)
 
@@ -771,7 +756,6 @@ T2 = Truck('T2')
 T2.leave_time_hour = T1.hours
 T2.leave_time_minutes = T1.minutes
 
-
 """
 TRUCK 3 
 - delivers all remaining packages after Truck 1 and Truck 2 are loaded
@@ -782,6 +766,7 @@ TRUCK 3
 # Truck 3
 T3 = Truck('T3')
 T3.load_truck(package_info.packages_with_delivery_deadlines)
+T3.load_truck(package_info.grouped_deliveries)
 T3.load_truck(package_info.naked_packages)
 T3.load_truck(package_info.packages_without_delivery_deadlines)
 T3.route(0, T3.all_package_info)
@@ -797,7 +782,6 @@ The correct address is 410 S State St., Salt Lake City, UT 84111.
 # check for missed packages and add them back to the master_package_id_list
 undelivered_packages = package_info.master_package_id_list
 undelivered_packages.insert(0, "undelivered")
-
 
 # SET package #9 to new address
 package_info.p9.delivery_address = '410 S State St'
@@ -823,9 +807,3 @@ else:
     for p in package_info.master_package_list:
         if p.package_id_number not in delivered_packages:
             print("Undelivered:", p.package_id_number)
-
-
-
-
-
-

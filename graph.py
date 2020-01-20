@@ -1,166 +1,217 @@
 import csv
+"""
+GRAPH BIG O ANALYSIS
 
+RESOURCE: https://wiki.python.org/moin/TimeComplexity
+
+NOTES:
+Addition:
+INITIALIZE AND SET = one operation = 1 
+Multiplication:
+FOR = N operations if each element of data needs to be accessed
+FOR = LogN if it cuts down the amount of data that needs to be accessed (merge sort)
+WHILE = LogN because it potentially runs shorter than the length of all the data elements
+
+------------------------------------------------------------------------------------------------------------------------
+BIG O       |                                           PSEUDOCODE                                                     |
+------------------------------------------------------------------------------------------------------------------------
+>> Clean and sort distance data into a base matrix dist_tbl_graph which can be used to create the undirected
+>> adjacency matrix 
+
+O(1)........INITIALIZE AND SET distance_table = DISTANCES CSV FILE
+O(1)........INITIALIZE AND SET TO EMPTY LISTS: dist_tbl_hash, distances, address_hash
+            
+            * *************************************************************** *
+            * OPEN is just accessing a pointer in memory allowing access to   *
+            * the data file as variable 'dt'.                                 *
+            * This does not require any iterations therefore it has a run     *
+            * time of O(1).                                                   *
+            * *************************************************************** *
+O(1)........OPEN distance_table AS dt
+                
+                 * *************************************************************** *
+                 * string.replace('current string', 'replacement string')          *
+                 * current_string = 1                                              *
+                 * replacement_string = 1                                          *
+                 * len(dt) = N                                                     *
+                 * len(dt.row) = N                                                 *
+                 * O(f(len(dt)) * f(len(dt.row)) + 2 = N * N + 2 = O(N^2)          *
+                 * *************************************************************** *
+O(N^2)...........INITIALIZE AND SET LIST filtered = REMOVE ALL '\n' FOR EACH STRING LINE IN dt
+
+                 * *************************************************************************************************** *
+                 * Return a reader object which will iterate over lines in the given csvfile. csvfile can be any object*
+                 * which supports the iterator protocol and returns a string each time its __next__() method is called *
+                 * To iterate over each line means it must include a for loop like this example:                       *
+                 *      for index in range(0, len(filtered), 1): add filtered row to reader[index]                     *
+                 * index = N                                                                                           *
+                 * len(filtered) = N                                                                                   *
+                 * O(f(index) * f(filtered)) = N * N = O(N^2)                                                          *
+                 * *************************************************************************************************** *
+O(N).............INITIALIZE AND SET LIST reader = csv.reader(filtered)
+
+                
+            >>> counter for rows in reader
+O(1).............INITIALIZE AND SET INT row_id = 0
+                
+                 ******************************************************** *
+                 * len(reader) = N + 1                                    *
+                 * ****************************************************** *
+             >>> append each row in reader to list dist_tbl_hash
+O(N + 1).........FOR EACH INDEX IN RANGE(0, len(reader), 1): 
+                    >> base case
+O(2N + 1)...........IF row_id IS 0
+                        INITIALIZE AND SET INT address_id TO 0
+                        
+                        * ****************************************************** *
+                        * len(reader) = N                                        *
+                        * len(reader.row) = N                                    *
+                        * O(f(len(reader)) * f(len(reader.row) = O(N^2)          *
+                        * ****************************************************** *
+                    >>> add address_id (hash) to each row then append row data
+O((2N + 1)(N + 1))......FOR EACH <T> column IN row
+                        >>> column base case
+O((2N +1)(4N + 1))..........IF column IS NOT 0
+                                SET LIST column = [address_id + 1, column]
+                                SET LIST row INDEX address_id TO column
+                                INCREMENT address_id BY 1
+O(N^2).................END FOR<<<<<
+                    END IF<<<<<
+                    
+                    >>>> continue first loop - O(N + 1)
+                    * ****************************************************** *
+                    * https://wiki.python.org/moin/TimeComplexity            *
+                    * EXTEND = O(K) (K=size of temp_list)                    *
+                    * APPEND = O(1)                                          *
+                    * len(temp_list) = K                                     *
+                    * len(row) = number of locations = N                     *
+                    * O(f(len(row)) * f(len(temp_list) = O(NK) = O(N)        *
+                    * ****************************************************** *                    
+                >>> append previously formatted row to dist_tbl_hash
+O((1N +1)(NK))......INITIALIZE AND SET LIST temp_list = [row_id]
+                >>> O(K)
+                    EXTEND LIST temp_list WITH LIST row
+                    APPEND LIST temp_list TO LIST dist_tbl_hash
+                    INCREMENT row_id BY 1
+O(KN^2).........END FOR<<<<<
+                
+                >>>>> new first level for loop
+                * ****************************************************** *
+                * len(dist_tbl_hash) = number of locations = N           *
+                * O(f(len(dist_tbl_hash)) = O(N)                         *
+                * ****************************************************** *
+            >>> clean and format dist_tbl_hash, build address_hash and distances_list
+O(5N)...........FOR EACH LIST row IN LIST dist_tbl_hash
+                    
+                    * ****************************************************** *
+                    * O(f(len(dist_tbl_hash) + 1) = O(N)                     *
+                    * ****************************************************** *
+                >>> base case - top row of csv is a list of addresses - this row is deleted here
+                >>> then create new row[0] with HUB data list
+                    IF row[0] IS 0
+                        DELETE row[0]
+                    >>> HUB address
+                        INITIALIZE AND SET STRING street_address = "4001 South 700 East"
+
+                    >>> new row[0] is the HUB data list
+                        SET STRING row[0][1] = STRING street_address
+
+                        APPEND LIST [0, street_address] TO LIST address_hash
+                    END IF
+
+
+                    >>>>> second level loop
+                    * ****************************************************** *
+                    * len(s) = length of string = N                          *
+                    * s.index(c) -> loop to index each character in s        *
+                    *                then loop back through to find c        *
+                    *                    return index of c                   *
+                    * i = length of string = N                               *
+                    * c = length of string = N                               *
+                    * O(f(len(s) * f(len(s)) * f(len(s)) = N^3               *
+                    * ****************************************************** *
+                    * NOTE: for built in function s.index(c)                 * 
+                    * Since N = the length of the string street address,     * 
+                    * N is expected to be less  than 50.                     *
+                    * Typically having O(N^3) would be less than ideal but   *
+                    * N is expected to be < 50 N^3 will not have a           *
+                    * significant impact on the run time here.               *
+                    *                                                        *
+                    * s.INDEX(c) iterates over the string until the          * 
+                    * matching value is found.                               *
+                    * ****************************************************** *
+                    * Slicing a string like so s[start index : end index] is *
+                    * accomplished with the python built in feature, slice.  *
+                    * At https://wiki.python.org/moin/TimeComplexity it is   *
+                    * said that getting a slice costs O(K) time.             *
+                    * ****************************************************** *
+                    
+                >>> clean and build the rest of the data for the lists build address_hash and distances_list
+                >>> extract zipcode and street address
+                >>> https://stackoverflow.com/questions/10059554/inserting-characters-at-the-start-and-end-of-a-string
+                >>> loop through each character of string s and extract zipcode and street address
+                 
+                    INITIALIZE AND SET STRING s = FUNCTION STR(row[2])
+O(12N^3*2K).........FOR EACH character IN STRING s
+                        IF c IS "("
+                        >>> O(N^2) - see NOTE above setting i here saves time later when slicing the string
+                            SET INT i = s.INDEX(c)
+                            
+                            SET INT address_id = row[0]
+                        >>> account for zero based indexing
+                            DECREMENT address_id BY 1
+                            
+                        >>> get zipcode and string SLICE O(K) - see NOTE above
+                            SET STRING zipcode = s[i + 1:-1]
+                            SET STRING street _address = s[1:i]
+                            
+                        >>> build list address_hash
+                            SET STRING row[2] = STRING street_address
+                            APPEND LIST [address_id, street_address, zipcode] TO LIST address_hash
+                            
+                        BREAK
+                        END IF
+                    END FOR
+
+                >>> build distances_graph
+                >>> O(K)
+                    IF row[0] IS NOT A LIST
+                        INITIALIZE AND SET LIST temp_list = [row[0] - 1]
+                        INITIALIZE AND SET LIST all_miles_in_current_list = LIST row FROM INDEX 3 TO LAST INDEX
+                        EXTEND LIST temp_list WITH LIST all_miles_in_current_list
+                        APPEND LIST temp_list TO LIST distances
+O(KN^3)         END FOR
+------------------------------------------------------------------------------------------------------------------------
+BIG O TOTAL
+------------------------------------------------------------------------------------------------------------------------
+O(KN^3)
+"""
 # import distance data
 distance_table = './WGU Dist Table.csv'
 
-"""
-Start Format Distance Data
 
-O(1)    SET EMPTY LIST dist_table_hash
-O(1)    SET EMPTY LIST distances
-O(1)    SET EMPTY LIST address_hash
-        
-        // open the file and clean the unnecessary information and spaces
-        // https://stackoverflow.com/questions/57467837/what-is-time-complexity-of-python3s-open-function
-            // open() returns a string file object which is a pointer to the actual data block in memory
-O(1)    WITH OPEN(distance_table) AS dt
-            // REMOVE new lines in strings from csv and REPLACE with empty strings
-O(N)        SET STRING filtered = PYTHON BUILT IN FUCNTIONS line.replace('\n', '') for line in dt)
-            // feed the filtered data into the python built in function `reader`
-            SET STRING reader = PYTHON BUILT IN FUNCTION csv.reader(filtered)
-            
-            // row_id is hash for dist_tbl_hash
-            SET INT row_id = 0
-   
-            // skip first row
-O(1)        CALL readline() ON dt
-            
-            // append each row to dist_tbl_hash
-O(N)        FOR EACH row IN reader:
-                // hash each row with row_id and then row data
-                
-                // base case
-O(1)            IF row_id == 0
-                    THEN SET address_id = 0
-O(N^2)                FOR EACH column IN row
-O(1)                    IF column IS NOT 0
-                            THEN
-                            SET LIST temp_col = col
-                            SET LIST column = [address_id + 1, temp]
-                            
-                            // set the current row as the new col data
-                            SET LIST row[address_id] = column
-                            
-                            // increment address_id by 1
-                            SET address_id = address_id + 1               
-                        END IF
-                    END FOR
-                END IF
-                
-                SET LIST temp_list = LIST row_id
-                // use built in function extend method to iterate over row and add each element of the row
-                CALL EXTEND(row) ON LIST temp_list
-                APPEND temp_list TO LIST dist_tbl_hash
-                
-                // increment row_id by 1
-                SET row_id = row_id + 1
-            END FOR
-        END WTIH
-TOTAL COMPLEXITY FOR BLOCK = O(N^2)
-        
-        //start new for loop for readability on dist_tbl_hash
-O(N)    FOR EACH row IN dist_tbl_hash
-            //base case - the hub
-O(1)        IF row ELEMENT 0 is 0
-                DELETE row[0]
-                SET STRING street_address = "4001 South 700 East"
-                
-O(N)    FOR EACH LIST row IN LIST dist_tbl_hash:
-            //    base case  //
-O(1)        IF INT row[0] IS 0:
-                DELETE row[0]
-                SET STRING street_address = "4001 South 700 East"
-                SET STRING row[0][1] = street_address
-                APPEND LIST [1, street_address] TO LIST address_hash
-            SET STRING s = TO_STRING(row[2])
-            # https://stackoverflow.com/questions/10059554/inserting-characters-at-the-start-and-end-of-a-string
-            SET STRING street_address = EMPTY STRING
-            
-            // https://mindmajix.com/python-enumerate-with-example
-            // enumerate has a BIG O time complexity of O(N) because it iterates over the length of the list by an  //
-            // index and then further making use of this index to get the value at the location:                    //
-            //      EXAMPLE                                                                                         //            
-            //      for i in length(list):                                                                          //            
-            //         for j in length(i:                                                                           //
-            //                  do stuff                                                                            //        
-O(N^2)      FOR EACH character IN ENUMERATE(s)
-O(1)            IF character IS "(":
-                    # https://guide.freecodecamp.org/python/is-there-a-way-to-substring-a-string-in-python/
-                    // extract zipcode                                          //
-                    // i = location of "(" because of the IF statement above    //
-                    // -1 = location of the last element in the list and is ")" //
-                    SET STRING zipcode = s[i:-1]
-                    
-                    // extract street address from character
-                    // get all characters up to the first "("
-                    SET STRING street_address = s[1:(i)]
-                    
-                    SET STRING row[2] = street_address
-                    APPEND LIST [row[0], street_address, zipcode] TO LIST address_hash
-                    BREAK
-                END IF
-            END FOR
-            
-            // build distances_graph //
-O(1)        IF row[0] IS NOT A LIST:
-                SET LIST temp_list = [row[0]]
-                
-                // row[3::] is only the distances (miles) between points //
-                EXTEND LIST temp_list WITH row[3::]
-                APPEND LIST temp_list TO distances
-            END IF
-        
-        // initialize counter for column numbers                //
-        //    use for creating symmetrical graph                //
-        //    if col is empty then replace with row[0] -> count //
-O(N)    FOR EACH LIST row INT LIST distances:
-            // fix last element from ' ' to '' //
-            SET row[-1] = ''
-O(N^3)      FOR EACH column IN ENUMERATE(row):
-O(1)           IF column IS EMPTY STRING:
-
-                    // get hash id for current_row  //
-                    SET INT current_row_id = row[0]
-                    
-                    // set col to distance from distance A -> B //
-                    // distances[i-1] is the previous row       //
-                    // the index of the current_row is also the //
-                    // index of the column of the previous row  //
-                    // this is the way a bidirectional graph is //
-                    SET STRING a_to_b = distances[i-1][current_row_id]
-                    
-                    // set the current_column (i) to the correct mileage (a_to_b) //
-                    SET row[i] = a_to_b
-                END IF
-            END FOR
-            
-            // remove the row id because which serves as the location id        //
-            // the location id (vertex) is assumed as the list element number   //
-            // i.e row[0] (HUB) is index 0/location_id 0,                       // 
-            //     row[1] index 1/location_id 1 ... row[N]                      //
-            
-            DELETE row[0]
-            
-        END FOR
-        # END format distance data
-B3:SPACE-TIME AND BIG-O
-O(N^3)
-"""
-# hash for distances
+# initial hash for distances, excludes vertices (miles) for all locations at each node
 dist_tbl_hash = []
-# distance graph for algorithm
+# distance graph for algorithm, includes vertices (miles) for all locations at each node
 distances = []
-# address hash
+# address hash, list of lists, each sublist = [location_id, street_address, zipcode]
 address_hash = []
 
-# open the file and clean the unnecessary information and spaces
+"""
+open the file and clean the unnecessary information, new lines, and spaces
+BIG O total: O(N^3)
+"""
 with open(distance_table) as dt:
     # remove new line \n
+    # O(N^2)
     filtered = (line.replace('\n', '') for line in dt)
+
+    # O(N)
     reader = csv.reader(filtered)
     # row_id is hash for dist_tbl_hash
     row_id = 0
     # skip first row
+    # O(1)
     dt.readline()
     # append each row to dist_tbl_hash
     for row in reader:
@@ -169,272 +220,231 @@ with open(distance_table) as dt:
             address_id = 0
             for col in row:
                 if col is not 0:
-                    temp = col
-                    col = [address_id + 1, temp]
+                    col = [address_id + 1, col]
                     row[address_id] = col
                     address_id += 1
+
 
         temp_list = [row_id]
         # use built in extend method to iterate over row and add each element of the row
         temp_list.extend(row)
         dist_tbl_hash.append(temp_list)
         row_id += 1
-        # for col in row:
-        #     # v = col
 
-    # set variables for insert function
-    # delivery_address, delivery_deadline, delivery_city, delivery_state, delivery_zip_code, package_weight,
-    #                delivery_status
-"""
-START BUILD BIDIRECTIONAL DISTANCES GRAPH
+    # clean dist_tbl_hash, build address_hash, distances_list
+    for row in dist_tbl_hash:
+        if row[0] is 0:
+            del row[0]
+            street_address = "4001 South 700 East"
+            row[0][1] = street_address
+            address_hash.append([0, street_address])
+        s = str(row[2])
+        for c in s:
+            if c is "(":
+                # extract zipcode from the street address
+                i = s.index(c)
+                address_id = row[0]
+                # subtract 1 for 0 based indexing
+                address_id = address_id - 1
+                zipcode = s[i + 1:-1]
+                street_address = s[1:i]
 
-        // SET STRING street_address FOR EACH NODE IN LIST dist_tbl_hash 
-O(N)    FOR EACH row IN LIST dits_tbl_hash
+                # build address_hash
+                row[2] = street_address
+                address_hash.append([address_id, street_address, zipcode])
+                break
 
-            //base case - the hub - manually set address because csv file is weird
-O(1)        IF row[0] IS 0:
-                REMOVE FIRST ELEMENT
-                SET street_address = "4001 South 700 East"
-                SET LIST first_element OF LIST dist_tbl_hash AND second_element OF LIST first_element = street_address
-                APPEND LIST [0 AND street_address] TO LIST address_hash
-            END IF
-            
-            // initialize a variable to hold the street address for each remaining node in dist_tbl_hash - placeholder
-                // to clean the zipcode off of the element
-            SET STRING s = STRING ELEMENT 3 OF current_node
-            SET STRING street_address = EMPTY STRING
-            
-O(N)       FOR EACH letter IN ENUMERATE(s)
-                // find th"e first '(' to signal the start of the zipcode
-O(1)            IF c IS "("
-                    // extract zipcode - START at "(" and END before ")"
-                    SET STRING zipcode = s[i+1:-1]
-                    
-                    // extract street address - START at first letter END end before "("       
-                    SET STRING street_address = s[1:i]
-                    
-                    // remove zipcode from current node
-                    SET current_node ELEMENT 2 = street_address
-                    
-                    APPEND LIST [address_id, street_address, zipcode] TO LIST address_hash
-                    
-                    BREAK
-                END IF
-            END FOR
-            // build bidirectional distances_graph
-            
-            // convert each node to a list
-O(1)        IF first_element OF current_node IS NOT A LIST
-                THEN 
-                SET LIST temporary_list = LIST first_element    
-                SET LIST all_miles_in_current_node = current_node[3::] - START AT 4th ELEMENT END AT LAST ELEMENT
-                EXTEND LIST temp_list WITH LIST all_miles_in_current_node
-                APPEND LIST temp_list TO LIST distances 
-            END IF
-END BUILD BIDIRECTIONAL DISTANCES GRAPH
-TOTAL BIG O = O(N^2)      
-"""
-for row in dist_tbl_hash:
-    if row[0] is 0:
-        del row[0]
-        street_address = "4001 South 700 East"
-        row[0][1] = street_address
-        address_hash.append([1, street_address])
-    s = str(row[2])
-    # https://stackoverflow.com/questions/10059554/inserting-characters-at-the-start-and-end-of-a-string
-    street_address = ""
-    for i, c in enumerate(s):
-        if c is "(":
-            # https://guide.freecodecamp.org/python/is-there-a-way-to-substring-a-string-in-python/
-            # extract zipcode from the street address
-            address_id = row[0]
-            zipcode = s[i+1:-1]
-            street_address = s[1:i]
-            row[2] = street_address
-            address_hash.append([address_id, street_address, zipcode])
-            break
-    # build distances_graph
-    if isinstance(row[0], list) is False:
-        temp_list = [row[0]]
-        all_miles_in_current_node = row[3::]
-        temp_list.extend(all_miles_in_current_node)
-        distances.append(temp_list)
+        # build distances_graph
+        if isinstance(row[0], list) is False:
+            temp_list = [row[0] - 1]
+            all_miles_in_current_node = row[3::]
+            temp_list.extend(all_miles_in_current_node)
+            distances.append(temp_list)
+
 
 """
-START ADD VERTEX IDS AND COMPLETE MILEAGE FOR EACH VERTEX
+FUNCTION build_adjacency_matrix
+
+The purpose of this block of code is to fill in the empty strings with the corresponding mileage from the matching 
+node. In order to do this it is necessary to:
+    - hold the vertex id of the current node
+    - then look up the element number that matches the current node vertex id of the previous node
+In other words the column_id (element number) that matches the previous address_id will hold the distance from the 
+current_address to the previous_address.
+
 // used for quick access to each address in the distance graph
 // if col is empty then replace with row[0] count
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Currently the distance_table looks like:
-[1, '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[2, '7.2', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[3, '3.8', '7.1', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[4, '11.0', '6.4', '9.2', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[5, '2.2', '6.0', '4.4', '5.6', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[6, '3.5', '4.8', '2.8', '6.9', '1.9', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[7, '10.9', '1.6', '8.6', '8.6', '7.9', '6.3', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[8, '8.6', '2.8', '6.3', '4.0', '5.1', '4.3', '4.0', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[9, '7.6', '4.8', '5.3', '11.1', '7.5', '4.5', '4.2', '7.7', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[10, '2.8', '6.3', '1.6', '7.3', '2.6', '1.5', '8.0', '9.3', '4.8', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[11, '6.4', '7.3', '10.4', '1.0', '6.5', '8.7', '8.6', '4.6', '11.9', '9.4', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[12, '3.2', '5.3', '3.0', '6.4', '1.5', '0.8', '6.9', '4.8', '4.7', '1.1', '7.3', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[13, '7.6', '4.8', '5.3', '11.1', '7.5', '4.5', '4.2', '7.7', '0.6', '5.1', '12.0', '4.7', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[14, '5.2', '3.0', '6.5', '3.9', '3.2', '3.9', '4.2', '1.6', '7.6', '4.6', '4.9', '3.5', '7.3', '0.0', '', '', '', '', '', '', '', '', '', '', '', '', '']
-[15, '4.4', '4.6', '5.6', '4.3', '2.4', '3.0', '8.0', '3.3', '7.8', '3.7', '5.2', '2.6', '7.8', '1.3', '0.0', '', '', '', '', '', '', '', '', '', '', '', '']
-[16, '3.7', '4.5', '5.8', '4.4', '2.7', '3.8', '5.8', '3.4', '6.6', '4.0', '5.4', '2.9', '6.6', '1.5', '0.6', '0.0', '', '', '', '', '', '', '', '', '', '', '']
-[17, '7.6', '7.4', '5.7', '7.2', '1.4', '5.7', '7.2', '3.1', '7.2', '6.7', '8.1', '6.3', '7.2', '4.0', '6.4', '5.6', '0.0', '', '', '', '', '', '', '', '', '', '']
-[18, '2.0', '6.0', '4.1', '5.3', '0.5', '1.9', '7.7', '5.1', '5.9', '2.3', '6.2', '1.2', '5.9', '3.2', '2.4', '1.6', '7.1', '0.0', '', '', '', '', '', '', '', '', '']
-[19, '3.6', '5.0', '3.6', '6.0', '1.7', '1.1', '6.6', '4.6', '5.4', '1.8', '6.9', '1.0', '5.4', '3.0', '2.2', '1.7', '6.1', '1.6', '0.0', '', '', '', '', '', '', '', '']
-[20, '6.5', '4.8', '4.3', '10.6', '6.5', '3.5', '3.2', '6.7', '1.0', '4.1', '11.5', '3.7', '1.0', '6.9', '6.8', '6.4', '7.2', '4.9', '4.4', '0.0', '', '', '', '', '', '', '']
-[21, '1.9', '9.5', '3.3', '5.9', '3.2', '4.9', '11.2', '8.1', '8.5', '3.8', '6.9', '4.1', '8.5', '6.2', '5.3', '4.9', '10.6', '3.0', '4.6', '7.5', '0.0', '', '', '', '', '', '']
-[22, '3.4', '10.9', '5.0', '7.4', '5.2', '6.9', '12.7', '10.4', '10.3', '5.8', '8.3', '6.2', '10.3', '8.2', '7.4', '6.9', '12.0', '5.0', '6.6', '9.3', '2.0', '0.0', '', '', '', '', '']
-[23, '2.4', '8.3', '6.1', '4.7', '2.5', '4.2', '10.0', '7.8', '7.8', '4.3', '4.1', '3.4', '7.8', '5.5', '4.6', '4.2', '9.4', '2.3', '3.9', '6.8', '2.9', '4.4', '0.0', '', '', '', '']
-[24, '6.4', '6.9', '9.7', '0.6', '6.0', '9.0', '8.2', '4.2', '11.5', '7.8', '0.4', '6.9', '11.5', '4.4', '4.8', '5.6', '7.5', '5.5', '6.5', '11.4', '6.4', '7.9', '4.5', '0.0', '', '', '']
-[25, '2.4', '10.0', '6.1', '6.4', '4.2', '5.9', '11.7', '9.5', '9.5', '4.8', '4.9', '5.2', '9.5', '7.2', '6.3', '5.9', '11.1', '4.0', '5.6', '8.5', '2.8', '3.4', '1.7', '5.4', '0.0', '', '']
-[26, '5.0', '4.4', '2.8', '10.1', '5.4', '3.5', '5.1', '6.2', '2.8', '3.2', '11.0', '3.7', '2.8', '6.4', '6.5', '5.7', '6.2', '5.1', '4.3', '1.8', '6.0', '7.9', '6.8', '10.6', '7.0', '0.0', '']
-[27, '3.6', '13.0', '7.4', '10.1', '5.5', '7.2', '14.2', '10.7', '14.1', '6.0', '6.8', '6.4', '14.1', '10.5', '8.8', '8.4', '13.6', '5.2', '6.9', '13.1', '4.1', '4.7', '3.1', '7.8', '1.3', '8.3', '']
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- // The purpose of this block of code is to fill in the empty strings with the corresponding mileage from the matching 
-    node. In order to do this it is necessary to:
-        hold the vertex id of the current node
-        then look up the element number that matches the current node vertex id of the previous node
-    In other words the column_id (element number) that matches the previous address_id will hold the distance from the 
-    current_address to the previous_address.
-    
-    // set the distance from NODE A -> NODE B = matching_distance_in_corresponding_node
-O(N)    FOR EACH row IN distances
-            SET LAST ELEMENT to ''
-O(N^2)      FOR EACH column IN ENUMERATE(row)
-O(1)            IF column IS EMPTY
-                    THEN 
-                    // save current vertex id
-                    SET INT current_vertex_id = INT row[0]
-                    
-                    // row[i-1] is the previous row
-                    // column[current_vertex_id] of the previous row is the matching mileage
-                    SET STRING a_to_b = STRING row[i-1][u]
-                    
-                    SET STRING row OF ELEMENT i = STRING a_to_b
-                END IF
+* *************************************************************** *
+*                                                                 *
+* *************************************************************** *
+------------------------------------------------------------------------------------------------------------------------
+BIG O       |                                           PSEUDOCODE                                                     |
+------------------------------------------------------------------------------------------------------------------------
+>>> initialize counter for vertex ids
+    >>> use for creating symmetrical graph
+    >>> if col is empty then replace with row[0] -> count
+>>> build undirected adjacency list
+
+
+        >>> start first level FOR loop
+O(N)........FOR EACH row IN LIST distances:
+            >>> fix last element form empty space to null space (' ' -> '')
+                SET row[-1] = ''
+            >>> set the empty values in each row to the correct weight
+O((N)(5N))      FOR EACH column IN row:
+                    IF column = ''
+                    >>> get the row id
+                        u = row[0]
+                    >>> get and set weight from node a to node b
+                        INITIALIZE AND SET STRING a_to_b = STRING distances[i-1][u]
+                        IF a_to_b is not '':
+                        >>> set current vertex in node to the correct weight
+                            SET STRING row[i] = a_to_b
+                        ELSE:
+                        >>> set element to 0.0
+                        STRING row[i] = STRING '0.0'
+                        
+                        END IF/ELSE
+                    END IF
+                END FOR
+O(N^2)       END FOR
+
+
+        >>>>start first level FOR loop
+        >>> convert all columns to float
+            INITIALIZE AND SET COUNTERS i, j = 0
+            
+O(N+2)      FOR EACH row IN distances:
+O(N+2)(N)       FOR EACH column IN row:
+                >>> convert current column to float
+                    SET distances[i][j] = float(column)     
+                    INCREMENT COUNTER j BY 1
+                END FOR
+                
+                SET COUNTER j = 0   
+                INCREMENT COUNTER i BY 1  
+            >>> delete vertex_id, location_id is assumed to be row_id
+                DELETE row[0]
+O(N^2)      END FOR    
+            
+            * ************************************************* *
+            * LIST distance now has the format:                 *                             
+            *                                                   *                               
+            * from_current_location_to_hub = row[1]             *                               
+            * from_current_location_to_location_1 = row[2]      *
+            * ....                                              * 
+            * from_current_location_to_location_N = row[N+1]    *
+            * ************************************************* *
+            
+            RETURN distances             
+            
+TOTAL BIG O = O(N^2)   
+"""
+def build_adjacency_matrix():
+    for row in distances:
+        # fix last element from ' ' to ''
+        row[-1] = ''
+        for i, col in enumerate(row):
+            if col is '':
+                # get hash id for row
+                u = row[0]
+                # set col to weight from distance A -> B
+                a_to_b = distances[i-1][u]
+                if a_to_b is not '':
+                    row[i] = a_to_b
+                else:
+                    # set last element of last node to '0.0'
+                    row[i] = '0.0'
+
+    # convert all elements from string to float
+    i = 0
+    j = 0
+    for row in distances:
+        for col in row:
+            distances[i][j] = float(col)
+            j += 1
+        j = 0
+        i += 1
+
+        # remove vertex_id, location_id is assumed to be row_id
+        del row[0]
+
+    return distances
+
+
+"""
+FUNCTION sorted_adjacency_matrix
+
+The purpose of this function is to build a presorted adjacency matrix from distances in the format:
+    row[0] = [TUPLE(self_id, 0.0), TUPLE(closest_neighbor_id, miles_from_0_to_closest)....
+              furthest_neigbor_id, miles_from_0_to_furthest)],
+    row[1] = [TUPLE(self_id, 0.0), TUPLE(closest_neighbor_id, miles_from_1_to_closest)....
+              furthest_neigbor_id, miles_from_1_to_furthest)],
+    ... for all rows
+
+With this format the rows are presorted for their closest neighbors and location_ids are easily accessible for the 
+package and truck classes to access. 
+
+
+* *************************************************************** *
+*                                                                 *
+* *************************************************************** *
+            >>> clear each row of it's vertex_id
+            INITIALIZE AND SET LIST distances_only_table = distances[1:]
+        
+            >>>>> first level for loop
+O(N + K)    FOR EACH row IN LIST distances_only_table
+                DELETE first three elements
+                DELETE t[0]
+                DELETE t[0]
+                DELETE t[0]
             END FOR
             
-            // fix vertex id to be 0 based indexing
-O(1)        DELETE row[0]
+            SET AND INITIALIZE EMPTY LIST new_dist_graph
             
-END ADD VERTEX IDS AND COMPLETE MILEAGE FOR EACH VERTEX           
-TOTAL BIG O = O(N^2)
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-The bidirectional distance table now looks like this:
-vertex_id/location_id is assumed as the row_id, python built in index is 0 based
-from_current_location_to_hub = row[1]
-from_current_location_to_location_1 = row[2]
-....
-from_current_location_to_location_N = row[N+1]
-
-[0, '0.0', '7.2', '3.8', '11.0', '2.2', '3.5', '10.9', '8.6', '7.6', '2.8', '6.4', '3.2', '7.6', '5.2', '4.4', '3.7', '7.6', '2.0', '3.6', '6.5', '1.9', '3.4', '2.4', '6.4', '2.4', '5.0', '3.6']
-[1, '7.2', '0.0', '7.1', '6.4', '6.0', '4.8', '1.6', '2.8', '4.8', '6.3', '7.3', '5.3', '4.8', '3.0', '4.6', '4.5', '7.4', '6.0', '5.0', '4.8', '9.5', '10.9', '8.3', '6.9', '10.0', '4.4', '13.0']
-[2, '3.8', '7.1', '0.0', '9.2', '4.4', '2.8', '8.6', '6.3', '5.3', '1.6', '10.4', '3.0', '5.3', '6.5', '5.6', '5.8', '5.7', '4.1', '3.6', '4.3', '3.3', '5.0', '6.1', '9.7', '6.1', '2.8', '7.4']
-[3, '11.0', '6.4', '9.2', '0.0', '5.6', '6.9', '8.6', '4.0', '11.1', '7.3', '1.0', '6.4', '11.1', '3.9', '4.3', '4.4', '7.2', '5.3', '6.0', '10.6', '5.9', '7.4', '4.7', '0.6', '6.4', '10.1', '10.1']
-[4, '2.2', '6.0', '4.4', '5.6', '0.0', '1.9', '7.9', '5.1', '7.5', '2.6', '6.5', '1.5', '7.5', '3.2', '2.4', '2.7', '1.4', '0.5', '1.7', '6.5', '3.2', '5.2', '2.5', '6.0', '4.2', '5.4', '5.5']
-[5, '3.5', '4.8', '2.8', '6.9', '1.9', '0.0', '6.3', '4.3', '4.5', '1.5', '8.7', '0.8', '4.5', '3.9', '3.0', '3.8', '5.7', '1.9', '1.1', '3.5', '4.9', '6.9', '4.2', '9.0', '5.9', '3.5', '7.2']
-[6, '10.9', '1.6', '8.6', '8.6', '7.9', '6.3', '0.0', '4.0', '4.2', '8.0', '8.6', '6.9', '4.2', '4.2', '8.0', '5.8', '7.2', '7.7', '6.6', '3.2', '11.2', '12.7', '10.0', '8.2', '11.7', '5.1', '14.2']
-[7, '8.6', '2.8', '6.3', '4.0', '5.1', '4.3', '4.0', '0.0', '7.7', '9.3', '4.6', '4.8', '7.7', '1.6', '3.3', '3.4', '3.1', '5.1', '4.6', '6.7', '8.1', '10.4', '7.8', '4.2', '9.5', '6.2', '10.7']
-[8, '7.6', '4.8', '5.3', '11.1', '7.5', '4.5', '4.2', '7.7', '0.0', '4.8', '11.9', '4.7', '0.6', '7.6', '7.8', '6.6', '7.2', '5.9', '5.4', '1.0', '8.5', '10.3', '7.8', '11.5', '9.5', '2.8', '14.1']
-[9, '2.8', '6.3', '1.6', '7.3', '2.6', '1.5', '8.0', '9.3', '4.8', '0.0', '9.4', '1.1', '5.1', '4.6', '3.7', '4.0', '6.7', '2.3', '1.8', '4.1', '3.8', '5.8', '4.3', '7.8', '4.8', '3.2', '6.0']
-[10, '6.4', '7.3', '10.4', '1.0', '6.5', '8.7', '8.6', '4.6', '11.9', '9.4', '0.0', '7.3', '12.0', '4.9', '5.2', '5.4', '8.1', '6.2', '6.9', '11.5', '6.9', '8.3', '4.1', '0.4', '4.9', '11.0', '6.8']
-[11, '3.2', '5.3', '3.0', '6.4', '1.5', '0.8', '6.9', '4.8', '4.7', '1.1', '7.3', '0.0', '4.7', '3.5', '2.6', '2.9', '6.3', '1.2', '1.0', '3.7', '4.1', '6.2', '3.4', '6.9', '5.2', '3.7', '6.4']
-[12, '7.6', '4.8', '5.3', '11.1', '7.5', '4.5', '4.2', '7.7', '0.6', '5.1', '12.0', '4.7', '0.0', '7.3', '7.8', '6.6', '7.2', '5.9', '5.4', '1.0', '8.5', '10.3', '7.8', '11.5', '9.5', '2.8', '14.1']
-[13, '5.2', '3.0', '6.5', '3.9', '3.2', '3.9', '4.2', '1.6', '7.6', '4.6', '4.9', '3.5', '7.3', '0.0', '1.3', '1.5', '4.0', '3.2', '3.0', '6.9', '6.2', '8.2', '5.5', '4.4', '7.2', '6.4', '10.5']
-[14, '4.4', '4.6', '5.6', '4.3', '2.4', '3.0', '8.0', '3.3', '7.8', '3.7', '5.2', '2.6', '7.8', '1.3', '0.0', '0.6', '6.4', '2.4', '2.2', '6.8', '5.3', '7.4', '4.6', '4.8', '6.3', '6.5', '8.8']
-[15, '3.7', '4.5', '5.8', '4.4', '2.7', '3.8', '5.8', '3.4', '6.6', '4.0', '5.4', '2.9', '6.6', '1.5', '0.6', '0.0', '5.6', '1.6', '1.7', '6.4', '4.9', '6.9', '4.2', '5.6', '5.9', '5.7', '8.4']
-[16, '7.6', '7.4', '5.7', '7.2', '1.4', '5.7', '7.2', '3.1', '7.2', '6.7', '8.1', '6.3', '7.2', '4.0', '6.4', '5.6', '0.0', '7.1', '6.1', '7.2', '10.6', '12.0', '9.4', '7.5', '11.1', '6.2', '13.6']
-[17, '2.0', '6.0', '4.1', '5.3', '0.5', '1.9', '7.7', '5.1', '5.9', '2.3', '6.2', '1.2', '5.9', '3.2', '2.4', '1.6', '7.1', '0.0', '1.6', '4.9', '3.0', '5.0', '2.3', '5.5', '4.0', '5.1', '5.2']
-[18, '3.6', '5.0', '3.6', '6.0', '1.7', '1.1', '6.6', '4.6', '5.4', '1.8', '6.9', '1.0', '5.4', '3.0', '2.2', '1.7', '6.1', '1.6', '0.0', '4.4', '4.6', '6.6', '3.9', '6.5', '5.6', '4.3', '6.9']
-[19, '6.5', '4.8', '4.3', '10.6', '6.5', '3.5', '3.2', '6.7', '1.0', '4.1', '11.5', '3.7', '1.0', '6.9', '6.8', '6.4', '7.2', '4.9', '4.4', '0.0', '7.5', '9.3', '6.8', '11.4', '8.5', '1.8', '13.1']
-[20, '1.9', '9.5', '3.3', '5.9', '3.2', '4.9', '11.2', '8.1', '8.5', '3.8', '6.9', '4.1', '8.5', '6.2', '5.3', '4.9', '10.6', '3.0', '4.6', '7.5', '0.0', '2.0', '2.9', '6.4', '2.8', '6.0', '4.1']
-[21, '3.4', '10.9', '5.0', '7.4', '5.2', '6.9', '12.7', '10.4', '10.3', '5.8', '8.3', '6.2', '10.3', '8.2', '7.4', '6.9', '12.0', '5.0', '6.6', '9.3', '2.0', '0.0', '4.4', '7.9', '3.4', '7.9', '4.7']
-[22, '2.4', '8.3', '6.1', '4.7', '2.5', '4.2', '10.0', '7.8', '7.8', '4.3', '4.1', '3.4', '7.8', '5.5', '4.6', '4.2', '9.4', '2.3', '3.9', '6.8', '2.9', '4.4', '0.0', '4.5', '1.7', '6.8', '3.1']
-[23, '6.4', '6.9', '9.7', '0.6', '6.0', '9.0', '8.2', '4.2', '11.5', '7.8', '0.4', '6.9', '11.5', '4.4', '4.8', '5.6', '7.5', '5.5', '6.5', '11.4', '6.4', '7.9', '4.5', '0.0', '5.4', '10.6', '7.8']
-[24, '2.4', '10.0', '6.1', '6.4', '4.2', '5.9', '11.7', '9.5', '9.5', '4.8', '4.9', '5.2', '9.5', '7.2', '6.3', '5.9', '11.1', '4.0', '5.6', '8.5', '2.8', '3.4', '1.7', '5.4', '0.0', '7.0', '1.3']
-[25, '5.0', '4.4', '2.8', '10.1', '5.4', '3.5', '5.1', '6.2', '2.8', '3.2', '11.0', '3.7', '2.8', '6.4', '6.5', '5.7', '6.2', '5.1', '4.3', '1.8', '6.0', '7.9', '6.8', '10.6', '7.0', '0.0', '8.3']
-[26, '3.6', '13.0', '7.4', '10.1', '5.5', '7.2', '14.2', '10.7', '14.1', '6.0', '6.8', '6.4', '14.1', '10.5', '8.8', '8.4', '13.6', '5.2', '6.9', '13.1', '4.1', '4.7', '3.1', '7.8', '1.3', '8.3', '']
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-"""
-
-# initialize counter for vertex ids
-    # use for creating symmetrical graph
-    # if col is empty then replace with row[0] -> count
-for row in distances:
-    # fix last element from ' ' to ''
-    row[-1] = ''
-    for i, col in enumerate(row):
-        if col is '':
-            # get hash id for row
-            u = row[0]
-            # set col to distance from distance A -> B
-            a_to_b = distances[i-1][u]
-            if a_to_b is not '':
-                row[i] = a_to_b
-            else:
-                row[i] = '0.0'
-
-# convert all elements from string to float
-i = 0
-j = 0
-for row in distances:
-    for col in row:
-        distances[i][j] = float(col)
-        print(distances[i][j])
-        j += 1
-    j = 0
-    i += 1
-
-
-
-    # remove vertex_id, location_id is assumed to be row_id
-    del row[0]
-
-
-
-"""
-    DEFINE PRINT FUNCTION print_street_address_only()
-    
-O(N)    FOR EACH LIST address IN address_hash:
-            // address = [location_id, street_address, zipcode]
-            PRINT(address)
-"""
-def print_street_address_only():
-    for a in address_hash:
-        print(a)
-
-
-
-""" 
-CLASS GRAPH
-
-// helper function for class graph  //
-        DEFINE FUNCTION build_bidirectional_graph()
-            // first line is a boolean flag used to skip the first line of the csv file //
-            SET BOOLEAN first_line = True
+            * *************************************************************** *
+            * u = row index                                                   *
+            * v = column index                                                *
+            * u and v are used instead of enumerate because they save one     *
+            * extra pass through the list that enumerate would have to do     *
+            * *************************************************************** *
+            SET AND INITIALIZE COUNTERS u, v = 0
             
-            // build the distance graph
-            SET LIST new_dist_graph TO EMPTY LIST
-            
-            // u = row index    //
-            // v = column index //
-O(N^2)      FOR EACH vertex IN ENUMERATE(u, dist_tbl_hash)
-                // skip first line
-O(1)            IF BOOLEAN first_line IS TRUE
-                    SET BOOLEAN first_line = FALSE
-                    CONTINUE
-                END IF
+            >>> start first level FOR loop
+O(N+3)      FOR EACH row IN LIST distances_only_table
+O(N+3)(N)       FOR EACH column IN distances_only_table[u]
+                    IF column IS EMPTY
+                    >>> find the corresponding row to build bidirectional graph
+                    >>> offset d[v] by negative one for zero based indexing
+                        SET row[v-1] = TUPLE (v-1, float(dist_tbl_hash[v][u]))
+                    ELSE:
+                        SET row[v-1] = TUPLE (v-1, float(row[v-1]))
+                        
+                    INCREMENT v BY 1
+                SET v = 1
+                INCREMENT u BY 1
                 
-                FOR EACH miles IN ENUMERATE(v, dist_tbl_hash[u])
+            >>> sort the row in ascending order according to weight
+            * *************************************************************** *
+            * https://stackoverflow.com/questions/34830661/using-a-lambda-as\ *
+            * -key-within-builtin-string-sort-hard-to-identify-big-o          *
+            * *************************************************************** *
+        >>> O(NlogN)
+            row.sort(key=lambda x: x[1])
+            APPEND row TO LIST new_dist_graph
+        * *************************************************************** *
+        * new_dist_graph returns:                                         *
+        *     node N = [                                                  * 
+        *     (N, 0.0), (closest_neighbor_M, miles_to_get_to_M)           *
+        *    …                                                            *
+        *     (furthest_neighbor_M, miles_to_get_to_M)                    *
+        *     ]                                                           *
+        * *************************************************************** *
             
+        RETURN new_dist_graph
 """
-def build_bidirectional_distance_graph():
+def sorted_adjacecny_matrix():
     distances_only_table = dist_tbl_hash[1:]
     for t in distances_only_table:
         del t[0]
@@ -459,12 +469,36 @@ def build_bidirectional_distance_graph():
             v += 1
         v = 1
         u += 1
+        #O(NlogN)
         d.sort(key=lambda x: x[1])
         new_dist_graph.append(d)
-
+    # row[N] = [(N, 0.0), (closest_neighbor_id, miles_to_closest)...(furthest_neighbor_id, miles_to_furthest)]
     return new_dist_graph
 
 
+""" 
+CLASS GRAPH
+
+// helper function for class graph  //
+        DEFINE FUNCTION build_bidirectional_graph()
+            // first line is a boolean flag used to skip the first line of the csv file //
+            SET BOOLEAN first_line = True
+
+            // build the distance graph
+            SET LIST new_dist_graph TO EMPTY LIST
+
+            // u = row index    //
+            // v = column index //
+O(N^2)      FOR EACH vertex IN ENUMERATE(u, dist_tbl_hash)
+                // skip first line
+O(1)            IF BOOLEAN first_line IS TRUE
+                    SET BOOLEAN first_line = FALSE
+                    CONTINUE
+                END IF
+
+                FOR EACH miles IN ENUMERATE(v, dist_tbl_hash[u])
+
+"""
 
 class Graph:
     """  Graph formats the distance data in dist_tbl_graph into a bidirectional graph
@@ -474,15 +508,12 @@ class Graph:
     """
     def __init__(self):
         # data
-        self.adjacency_list = distances
-        self.sorted_bidirectional = build_bidirectional_distance_graph()
-        self.distances_from_hub = []
+        self.adjacency_list = build_adjacency_matrix()
+        self.sorted_bidirectional = sorted_adjacecny_matrix()
         self.address_list = address_hash
 
 
 g = Graph()
-for row in g.sorted_bidirectional:
-    print(row)
 
 
 

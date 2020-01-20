@@ -43,6 +43,7 @@ naked_packages = ["No Special Needs"]
 
 # separate lists for packages with special notes
 delayed_flight = ["Delayed Flights"]
+grouped_deliveries = ["Grouped Deliveries"]
 truck_one_only = ["Load on this Truck one only"]
 truck_two_only = ["Load on this Truck two only"]
 truck_three_only = ["Load on this Truck two only"]
@@ -136,8 +137,11 @@ class Package:
         if 'Delayed' in s:
             delayed_flight.append([p_id, s])
 
-        if 'Wrong address listed' in self.special_notes:
+        if 'Wrong address listed' in s:
             wrong_address.append([p_id, s])
+
+        if 'Must be' in s:
+            grouped_deliveries.append([p_id, s])
 
         # add packages with no delivery deadline or special notes to a list
         #   the packages in this list will be added last to fill the remaining spots in the trucks
@@ -233,7 +237,7 @@ p40 = Package(pkg_tbl_hash, 40)
 # print(truck_three_only)
 # print(wrong_address)
 
-print(p3.info())
+
 
 
 
