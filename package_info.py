@@ -37,14 +37,11 @@ O(1)........OPEN pkg_tbl_hash AS pf:
                 * which supports the iterator protocol and returns a string each time its __next__() method is called *
                 * To iterate over each line means it must include a for loop like this example:                       *
                 *      for index in range(0, len(filtered), 1): add filtered row to reader[index]                     *
-                * index = N                                                                                           *
-                * len(filtered) = N                                                                                   *
-                * O(f(index) * f(filtered)) = N * N = O(N^2)                                                          *
                 * *************************************************************************************************** *
 O(N)............INITIALIZE AND SET LIST reader = csv.reader(pf)
                 INITIALIZE AND SET INT line_number = 0
                 INITIALIZE AND SET STRING delivery_status = 'at hub'
-            >>> skip first line of csv
+            >>> skip first line of csv; this calls __next_() method on one line
                 pf.readline()
 O(8N)...........FOR EACH row IN reader
                 >>> PART E: set variables for insert function with corresponding column in each row
@@ -91,12 +88,10 @@ O(N)............END FOR
             >>> master package list - p1...pN memory addresses to be accessed in trucks.py
             >>> _ flags other users that this list should not be changed unless absolutely necessary
                 INITIALIZE AND SET LIST _master_package_list = []
-
-
-
-* *************************************************************** *
-*                       COMMENT BLOCK                             *
-* *************************************************************** *
+------------------------------------------------------------------------------------------------------------------------
+BIG O TOTAL
+------------------------------------------------------------------------------------------------------------------------
+O(N)
 """
 # PART E: Develop a hash table
 pkg_tbl_hash = []
@@ -146,6 +141,143 @@ master_package_id_list = []
 
 # master package list - p1...pN memory addresses to be accessed in trucks.py
 master_package_list = []
+
+
+"""
+CLASS PACKAGE
+
+BIG O NOTES:
+RESOURCE: https://wiki.python.org/moin/TimeComplexity
+Addition:
+INITIALIZE AND SET = one operation = 1
+Multiplication:
+FOR = N operations if each element of data needs to be accessed
+FOR = LogN if it cuts down the amount of data that needs to be accessed (merge sort)
+WHILE = LogN because it potentially runs shorter than the length of all the data elements
+
+------------------------------------------------------------------------------------------------------------------------
+BIG O       |                                           PSEUDOCODE                                                     |
+------------------------------------------------------------------------------------------------------------------------
+>> Notes about the first block of code
+        INITIALIZE AND SET ALL DATA MEMBERS
+            master_package_list.append(self)
+        >>> assign values to class properties
+        >>> individual package information list
+            self.package_info_list = package_list[package_key - 1]
+            self.package_id_number = package_key
+        >>> subtract 1 from package key to access hash table in the right index
+            package_key -= 1
+            self.delivery_address = self.package_info_list[1]
+            self.zipcode = ''
+            self.address_id = -1
+            self.delivery_deadline = self.package_info_list[2]
+            self.load_time = ''
+            self.delivery_time = ''
+            self.delivery_city = self.package_info_list[3]
+            self.delivery_state = self.package_info_list[4]
+            self.delivery_zip_code = self.package_info_list[5]
+            self.package_weight = self.package_info_list[6]
+            self.delivery_status = 'at hub'
+            self.special_notes = self.package_info_list[8]
+            self.required_truck = ''
+            self.loaded_on_truck = ''
+
+        >>> find address id and set zipcode
+O(2N).......for a in address_hash:
+                IF address_id == self.delivery_address:
+                    self.address_id = a[0] - 1
+                    break
+            >>> fix for bad data at address id 23
+                if self.address_id is -1:
+                    self.address_id = 23
+
+        >>> place package into correct special notes list to be loaded onto appropriate trucks in trucks.py
+            INITIALIZE AND SET INT p_id = self.package_id_number
+            INITIALIZE AND SET STRING notes = self.special_notes
+            INITIALIZE AND SET STRING deadline = self.delivery_deadline
+
+O(3)........IF STRING self.delivery_deadline != 'EOD':
+                APPEND LIST [p_id, deadline] TO LIST packages_with_delivery_deadlines
+            ELSE:
+                APPEND LIST [p_id, deadline] TO LIST packages_without_delivery_deadlines
+            >>> DELETE 'EOD'
+                SET STRING self.delivery_deadline TO EMPTY STRING
+            END IF/ELSE
+    
+O(2)........IF STRING self.special_notes IS TRUE
+                APPEND LIST [p_id, notes] TO LIST packages_with_special_notes
+    
+O(4N+2).....IF STRING 'Can only be on truck' IS IN STRING notes:
+            >>> split special note for iterable string
+                INITIALIZE AND SET LIST split = s.split()
+            >>> iterate through string, check for int
+O(4N)           FOR EACH element IN LIST split
+                    * *************************************************************** *
+                    * isdigit() returns True if every element in a string are digits. *
+                    *   since the split() function above limits the element to only   *
+                    *   ONE character per element, big O here would be O(1), where    *
+                    *   in other cases of multiple characters per element             *
+                    *   it would be O(N)                                              *
+                    * https://www.geeksforgeeks.org/python-string-isdigit-application/*
+                    * *************************************************************** *
+                >>> O(1)
+O(2)                IF element.isdigit():
+                        SET truck_number = element
+                >>> append package id and truck number to can only be on truck N
+                >>> T is for Truck - Trucks are created as T1...TN
+                    SET STRING truck = 'T' + str(truck_number)
+                    SET STRING self.required_truck = truck
+                >>> load package to correct truck
+                >>> if trucks are added in the future this will need to be edited
+                >>> if truck is not at the HUB then add to a waiting list this_truck_only
+O(2)                IF STRING truck IS 'T1':
+                        APPEND LIST [p_id, truck] TO GLOBAL LIST truck_one_only
+                    ELIF STRING truck IS 'T2':
+                        APPEND LIST [p_id, truck] TO GLOBAL LIST truck_two_only
+                    ELIF STRING truck IS 'T3':
+                        APPEND LIST [p_id, truck] TO GLOBAL LIST truck_three_only
+                    ELSE:
+                        print("Truck does not exist. Check your truck string OR create a new Truck object from the Truck 
+                        Class.")
+                END FOR
+            END IF
+        >>> check delayed package info
+O(2N).......IF 'Delayed' IS IN STRING notes:
+                APPEND LIST [p_id, notes] TO GLOBAL LIST delayed_flight
+            END IF
+            
+O(2N).......IF STRING 'Wrong address listed' IS IN STRING notes:
+                APPEND LIST [p_id, notes] TO GLOBAL LIST wrong_address
+            END IF
+            
+O(2N).......IF 'Must be' IS IN STRING notes:
+                APPEND LIST [p_id, notes] TO GLOBAL LIST grouped_deliveries
+            END IF
+            
+        >>> add packages with no delivery deadline or special notes to a list
+        >>> the packages in this list will be added last to fill the remaining spots in the trucks
+            SET BOOLEAN no_deadline = False
+O(2N+1)     FOR EACH element IN LIST packages_without_delivery_deadlines[1:]:
+                IF INT p_id IS element[0]:
+                    SET BOOLEAN no_deadline = True
+            END FOR
+            
+        >>> if no deadline is true and special notes do not exist add to no special needs packages list
+O(3)        IF no_deadline IS TRUE AND NOT notes:
+                APPEND INT p_id TO LIST naked_packages
+            END IF
+            
+O(2)        IF INT p_id NOT IN LIST master_package_id_list:
+                APPEND INT p_id TO LIST master_package_id_list
+            ELSE:
+                print("Package Id already exists. Please try again.")
+            END IF/ELSE
+
+------------------------------------------------------------------------------------------------------------------------
+BIG O TOTAL
+------------------------------------------------------------------------------------------------------------------------
+O(N)
+"""
 
 
 class Package:
@@ -219,7 +351,8 @@ class Package:
             elif truck == 'T3':
                 truck_three_only.append([p_id, truck])
             else:
-                print("Truck does not exist. Check your truck string.")
+                print("Truck does not exist. Check your truck string OR create a new Truck object from the Truck Class."
+                      )
 
         # check delayed package info
         if 'Delayed' in s:
@@ -246,7 +379,7 @@ class Package:
         else:
             print("Package Id already exists. Please try again.")
 
-
+    # O(1)
     def info(self):
         info = '''
         Package Id Number: {}
@@ -273,7 +406,7 @@ def build_master_package_list(package_list):
         package_id = p[0]
         name = Package(package_list, package_id)
 
-
+# O(N)
 def insert_new_package(package_id, delivery_address, delivery_deadline, delivery_city, delivery_zipcode,
                        package_weight, delivery_status):
     """
@@ -284,25 +417,11 @@ def insert_new_package(package_id, delivery_address, delivery_deadline, delivery
     if package_id not in master_package_id_list:
         pkg_tbl_hash.append([package_id, delivery_address, delivery_deadline, delivery_city, delivery_state,
                             delivery_zipcode, package_weight, delivery_status, 'no notes'])
-    name = Package(pkg_tbl_hash, package_id)
+    Package(pkg_tbl_hash, package_id)
 
 
 build_master_package_list(pkg_tbl_hash)
 
-# # list for delivery deadlines
-# print(packages_with_delivery_deadlines)
-# print(packages_without_delivery_deadlines)
-#
-# # list of packages with special notes
-# print(packages_with_special_notes)
-# print(naked_packages)
-#
-# # separate lists for packages with special notes
-# print(delayed_flight)
-# print(truck_one_only)
-# print(truck_two_only)
-# print(truck_three_only)
-# print(wrong_address)
 
 
 
