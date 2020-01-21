@@ -354,7 +354,7 @@ def build_adjacency_matrix():
                 # get hash id for row
                 u = row[0]
                 # set col to weight from distance A -> B
-                a_to_b = distances[i-1][u]
+                a_to_b = distances[i-1][u+1]
                 if a_to_b is not '':
                     row[i] = a_to_b
                 else:
@@ -373,7 +373,19 @@ def build_adjacency_matrix():
 
         # remove vertex_id, location_id is assumed to be row_id
         del row[0]
+        print(row)
+    return distances
 
+    # convert all elements from string to float
+    i = 0
+    j = 0
+    for row in distances:
+        for col in row:
+            distances[i][j] = float(col)
+            j += 1
+        j = 0
+        i += 1
+        print(row)
     return distances
 
 

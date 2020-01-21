@@ -487,6 +487,7 @@ def build_master_package_list(package_list):
         package_id = p[0]
         Package(package_list, package_id)
 
+
 # O(N)
 def insert_new_package(package_id, delivery_address, delivery_deadline, delivery_city, delivery_zipcode,
                        package_weight, delivery_status):
@@ -508,6 +509,26 @@ def insert_new_package(package_id, delivery_address, delivery_deadline, delivery
 
     return True
 
+
+def is_package_on_time(package, delivered):
+    pd = package.delivery_deadline
+
+    deadline_hours = pd[0:2]
+    deadline_minutes = pd[3:5]
+    deadline_meridies = pd[-2:]
+
+    delivered.split(":")
+    delivered_hours = delivered[0]
+    delivered_minutes = delivered[2] + delivered[3]
+    delivered_meridies = delivered[-2:]
+
+    if (deadline_hours >= delivered_hours and deadline_minutes >= delivered_minutes) \
+            or \
+            (deadline_meridies is 'AM' and delivered_meridies is 'PM'):
+        # if false the package is late
+        return False
+    else:
+        return True
 
 build_master_package_list(pkg_tbl_hash)
 
