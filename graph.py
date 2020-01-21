@@ -279,7 +279,7 @@ current_address to the previous_address.
 *                                                                 *
 * *************************************************************** *
 ------------------------------------------------------------------------------------------------------------------------
-BIG O       |                                           PSEUDOCODE                                                     |
+|BIG O       |                                           PSEUDOCODE                                                    |
 ------------------------------------------------------------------------------------------------------------------------
 >>> initialize counter for vertex ids
     >>> use for creating symmetrical graph
@@ -338,8 +338,10 @@ O(N^2)      END FOR
             * ************************************************* *
             
             RETURN distances             
-            
-TOTAL BIG O = O(N^2)   
+------------------------------------------------------------------------------------------------------------------------
+BIG O TOTAL
+------------------------------------------------------------------------------------------------------------------------
+O(N^2)   
 """
 def build_adjacency_matrix():
     for row in distances:
@@ -382,14 +384,12 @@ The purpose of this function is to build a presorted adjacency matrix from dista
     row[1] = [TUPLE(self_id, 0.0), TUPLE(closest_neighbor_id, miles_from_1_to_closest)....
               furthest_neigbor_id, miles_from_1_to_furthest)],
     ... for all rows
-
+    
+------------------------------------------------------------------------------------------------------------------------
+BIG O       |                                           PSEUDOCODE                                                     |
+------------------------------------------------------------------------------------------------------------------------
 With this format the rows are presorted for their closest neighbors and location_ids are easily accessible for the 
 package and truck classes to access. 
-
-
-* *************************************************************** *
-*                                                                 *
-* *************************************************************** *
             >>> clear each row of it's vertex_id
             INITIALIZE AND SET LIST distances_only_table = distances[1:]
         
@@ -430,9 +430,12 @@ O(N+3)(N)       FOR EACH column IN distances_only_table[u]
             * https://stackoverflow.com/questions/34830661/using-a-lambda-as\ *
             * -key-within-builtin-string-sort-hard-to-identify-big-o          *
             * *************************************************************** *
-        >>> O(NlogN)
-            row.sort(key=lambda x: x[1])
-            APPEND row TO LIST new_dist_graph
+            >>> O(NlogN)
+                row.sort(key=lambda x: x[1])
+                APPEND row TO LIST new_dist_graph
+            END FOR
+    >>> return new_dist_graph => sorted adjacency graph in ascending order by mileage
+    >>> LIST [(loc_id, mileage)...]
         * *************************************************************** *
         * new_dist_graph returns:                                         *
         *     node N = [                                                  * 
@@ -443,9 +446,14 @@ O(N+3)(N)       FOR EACH column IN distances_only_table[u]
         * *************************************************************** *
             
         RETURN new_dist_graph
+------------------------------------------------------------------------------------------------------------------------
+BIG O TOTAL
+------------------------------------------------------------------------------------------------------------------------
+O(N^2)  
 """
 def sorted_adjacecny_matrix():
     distances_only_table = dist_tbl_hash[1:]
+    # O(N)
     for t in distances_only_table:
         del t[0]
         del t[0]
@@ -457,6 +465,7 @@ def sorted_adjacecny_matrix():
     # v = 1 => column index, 1 to skip the first column which is already set in each vertex
     u = 0
     v = 1
+
     for d in distances_only_table:
         # v = column index
         for e in distances_only_table[u]:
@@ -479,41 +488,27 @@ def sorted_adjacecny_matrix():
 """ 
 CLASS GRAPH
 
-// helper function for class graph  //
-        DEFINE FUNCTION build_bidirectional_graph()
-            // first line is a boolean flag used to skip the first line of the csv file //
-            SET BOOLEAN first_line = True
-
-            // build the distance graph
-            SET LIST new_dist_graph TO EMPTY LIST
-
-            // u = row index    //
-            // v = column index //
-O(N^2)      FOR EACH vertex IN ENUMERATE(u, dist_tbl_hash)
-                // skip first line
-O(1)            IF BOOLEAN first_line IS TRUE
-                    SET BOOLEAN first_line = FALSE
-                    CONTINUE
-                END IF
-
-                FOR EACH miles IN ENUMERATE(v, dist_tbl_hash[u])
+DATA MEMBERS
+adjacency_list = build_adjacency_matrix()
+sorted_bidirectional_matrix()
+address_list = address_hash
 
 """
 
-class Graph:
-    """  Graph formats the distance data in dist_tbl_graph into a bidirectional graph
 
-        class member bidirectional:
-            presorted key:value pairs of address_id:mileage in ascending order by mileage
-    """
+class Graph:
+    """  Graph formats the distance data in dist_tbl_graph into bidirectional graphs  """
     def __init__(self):
-        # data
+        # O(N^2)
         self.adjacency_list = build_adjacency_matrix()
+        # O(N^2)
         self.sorted_bidirectional = sorted_adjacecny_matrix()
+        # O(1)
         self.address_list = address_hash
 
 
 g = Graph()
+
 
 
 
