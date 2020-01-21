@@ -159,7 +159,7 @@ WHILE = LogN because it potentially runs shorter than the length of all the data
 BIG O       |                                           PSEUDOCODE                                                     |
 ------------------------------------------------------------------------------------------------------------------------
 >> Notes about the first block of code
-        INITIALIZE AND SET ALL DATA MEMBERS
+        INITIALIZE AND SET ALL DATA MEMBERS AND METHODS
             master_package_list.append(self)
         >>> assign values to class properties
         >>> individual package information list
@@ -183,12 +183,12 @@ BIG O       |                                           PSEUDOCODE              
             self.loaded_on_truck = ''
 
         >>> find address id and set zipcode
-O(2N).......for a in address_hash:
+O(2N).......FOR EACH STRING address INT LIST address_hash:
                 IF address_id == self.delivery_address:
                     self.address_id = a[0] - 1
                     break
             >>> fix for bad data at address id 23
-                if self.address_id is -1:
+                IF INT self.address_id IS -1:
                     self.address_id = 23
 
         >>> place package into correct special notes list to be loaded onto appropriate trucks in trucks.py
@@ -257,26 +257,53 @@ O(2N).......IF 'Must be' IS IN STRING notes:
         >>> add packages with no delivery deadline or special notes to a list
         >>> the packages in this list will be added last to fill the remaining spots in the trucks
             SET BOOLEAN no_deadline = False
-O(2N+1)     FOR EACH element IN LIST packages_without_delivery_deadlines[1:]:
-                IF INT p_id IS element[0]:
+O(2N+1)     FOR EACH element IN LIST packages_without_delivery_deadlines[1:]
+                IF INT p_id IS element[0]
                     SET BOOLEAN no_deadline = True
             END FOR
             
         >>> if no deadline is true and special notes do not exist add to no special needs packages list
-O(3)        IF no_deadline IS TRUE AND NOT notes:
+O(3)        IF no_deadline IS TRUE AND NOT notes
                 APPEND INT p_id TO LIST naked_packages
             END IF
             
-O(2)        IF INT p_id NOT IN LIST master_package_id_list:
+O(2)        IF INT p_id NOT IN LIST master_package_id_list
                 APPEND INT p_id TO LIST master_package_id_list
             ELSE:
                 print("Package Id already exists. Please try again.")
             END IF/ELSE
+            
+        >>> class method info to print all information about each package
+            * *************************************************************** *
+            * Python built in method string.format() iterates over the string *
+            * looking for replacement fields (curly brackets) and placeholders*
+            * to concatenate the parameters passed into the format() function.
+            * This process takes only one iteration; BigO = O(n)
+            * *************************************************************** *
+O(N)........METHOD INFO
+                info = '''
+                Package Id Number: {}
+                Delivery Address: {}
+                Delivery Address ID: {}
+                Delivery Deadline: {}
+                Delivery Time: {}
+                Delivery City: {}
+                Delivery State: {}
+                Delivery Zip Code: {}
+                Package Weight: {}
+                Delivery Status: {}
+                Loaded on Truck Number: {}
+                Special Notes: {}
+                '''.format(self.package_id_number, self.delivery_address, self.address_id, self.delivery_deadline, 
+                           self.delivery_time, self.delivery_city, self.delivery_state, self.delivery_zip_code, 
+                           self.package_weight, self.delivery_status, self.loaded_on_truck, self.special_notes)
+                return info
 
 ------------------------------------------------------------------------------------------------------------------------
 BIG O TOTAL
 ------------------------------------------------------------------------------------------------------------------------
-O(N)
+Class Initialization...O(N)
+Class Method info()....O(N)
 """
 
 
@@ -399,19 +426,79 @@ class Package:
                    self.delivery_status, self.loaded_on_truck, self.special_notes)
         return info
 
+
+"""
+STATIC HELPER FUNCTIONS
+
+BIG O NOTES:
+RESOURCE: https://wiki.python.org/moin/TimeComplexity
+Addition:
+INITIALIZE AND SET = one operation = 1
+Multiplication:
+FOR = N operations if each element of data needs to be accessed
+FOR = LogN if it cuts down the amount of data that needs to be accessed (merge sort)
+WHILE = LogN because it potentially runs shorter than the length of all the data elements
+
+------------------------------------------------------------------------------------------------------------------------
+BIG O       |                                           PSEUDOCODE                                                     |
+------------------------------------------------------------------------------------------------------------------------
+        >>> build a master package list with a package list; must be in the format of pkg_tbl_hash
+O(N)........STATIC FUNCTION build_master_package_list(package_list)
+                FOR EACH row IN package_list
+                    SET INT package_id = p[0]
+                >>> create a package object from Class Package for each package
+                >>> the package is appended to the master_package_list from within the class
+O(N)................CALL CLASS Package(package_list, package_id)
+
+
+O(N).......STATIC FUNCTION insert_new_packagepackage_id, delivery_address, delivery_deadline, delivery_city, 
+                       delivery_zipcode, package_weight, delivery_status)
+            >>> Insert package information into pkg_table_hash
+                * *************************************************************** *
+                * NOT IN must iterate over the master_package_id_list to check    *
+                * if the package_id is not in the list.                           *
+                * O(N)                                                            *
+                * *************************************************************** *
+                IF package_id NOT IN master_package_id_list:
+                    APPEND LIST [package_id, delivery_address, delivery_deadline, delivery_city, delivery_state,
+                                        delivery_zipcode, package_weight, delivery_status, 'no notes']
+                    TO LIST pkg_tbl_hash
+                    
+            >>> Create new Package object
+O(N)............CALL CLASS Package(pkg_tbl_hash, package_id)
+                            
+            >>> build the master_package_list
+                CALL FUNCTION build_master_package_list(pkg_tbl_hash)
+
+------------------------------------------------------------------------------------------------------------------------
+BIG O TOTAL
+------------------------------------------------------------------------------------------------------------------------
+FUNCTION build_master_package_list...O(N)
+FUNCTION insert_new_package..........O(N)
+"""
 # create all packages
 # O(N)
 def build_master_package_list(package_list):
+    """
+    :param package_list: hash table of initial packages from csv file (see line 98: with open...pt)
+    :return: VOID
+    """
     for p in package_list:
         package_id = p[0]
-        name = Package(package_list, package_id)
+        Package(package_list, package_id)
 
 # O(N)
 def insert_new_package(package_id, delivery_address, delivery_deadline, delivery_city, delivery_zipcode,
                        package_weight, delivery_status):
     """
-    Insert package information into pkg_table hash
-    Create new Package object
+    :param package_id: integer, hash key for package
+    :param delivery_address: string, street address
+    :param delivery_deadline: string, time in format `8:00 AM`
+    :param delivery_city: string, city name
+    :param delivery_zipcode: string, 5 digit zipcode
+    :param package_weight: string, in integer format (no decimals)
+    :param delivery_status: string, 3 options: 'at hub', 'in route', 'delivered'
+    :return: BOOLEAN
     """
     # O(N) - N = length of master_package_id_list
     if package_id not in master_package_id_list:
@@ -419,9 +506,10 @@ def insert_new_package(package_id, delivery_address, delivery_deadline, delivery
                             delivery_zipcode, package_weight, delivery_status, 'no notes'])
     Package(pkg_tbl_hash, package_id)
 
+    return True
+
 
 build_master_package_list(pkg_tbl_hash)
-
 
 
 

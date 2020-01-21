@@ -343,6 +343,9 @@ BIG O TOTAL
 O(N^2)   
 """
 def build_adjacency_matrix():
+    """
+    :return: distances as adjacency list
+    """
     for row in distances:
         # fix last element from ' ' to ''
         row[-1] = ''
@@ -451,6 +454,9 @@ BIG O TOTAL
 O(N^2)  
 """
 def sorted_adjacecny_matrix():
+    """
+    :return: distances as adjacency list in ascending order by mileage (nearest neighbor)
+    """
     distances_only_table = dist_tbl_hash[1:]
     # O(N)
     for t in distances_only_table:

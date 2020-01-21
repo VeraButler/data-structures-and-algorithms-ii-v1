@@ -276,7 +276,7 @@ class Truck:
                                         SET INT package_id = INT package
         O(1)                            IF INT package_id IS IN LIST package_info.master_id_list
                                             THEN CALL FUNCTION self.add_package(INT package_id)
-        BIG O => O(N)
+        BIG O TOTAL => O(N)
 
         B.2 Apply programming models to the scenario.
         B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
@@ -483,7 +483,7 @@ class Truck:
 
                 RETURN route
 
-        BIG O => O(N^3 * LogN)
+        BIG O TOTAL => O(N^3 * LogN)
         B.2 Apply programming models to the scenario.
         B.3 Evaluate space-time complexity using Big O notation throughout the coding and for the entire program.
                 O(N^3 * LogN)
@@ -529,17 +529,38 @@ class Truck:
                 for vertex in hub:
                     for p in package_list:
                         if p[0] == vertex[0]:
+                            packages = p[2:]
                             address_id = p[0]
-                            package = p[2]
                             miles = vertex[1]
                             self.mileage += miles
                             # add time of delivery for truck and package
                             # deliver package
-                            if package.package_id_number in package_info.master_package_id_list:
-                                delivered_packages.append(package.package_id_number)
-                                package.delivery_status = 'delivered'
-                                package_info.master_package_id_list.remove(p[2].package_id_number)
-                                package.delivery_time = self.set_delivery_time(self.mileage)
+                            if len(packages) is 1:
+                                package = packages[0]
+                                if package.package_id_number in package_info.master_package_id_list:
+                                    delivered_packages.append(package.package_id_number)
+                                    package.delivery_status = 'delivered'
+                                    package_info.master_package_id_list.remove(package.package_id_number)
+                                    package.delivery_time = self.set_delivery_time(self.mileage)
+                                    if package.delivery_status is 'delivered':
+                                        package.delivery_time = self.set_delivery_time(self.mileage)
+                                        if self.get_package_delivery_deadline(package, '9:00 AM') is False:
+                                            print("Package", package.package_id_number, "was delivered late.")
+                                        else:
+                                            print("Package", package.package_id_number, "was delivered on time.")
+                            if len(packages) > 1:
+                                for pkg in packages:
+                                    if pkg.package_id_number in package_info.master_package_id_list:
+                                        delivered_packages.append(pkg.package_id_number)
+                                        pkg.delivery_status = 'delivered'
+                                        package_info.master_package_id_list.remove(pkg.package_id_number)
+                                        pkg.delivery_time = self.set_delivery_time(self.mileage)
+                                        if pkg.delivery_status is 'delivered':
+                                            pkg.delivery_time = self.set_delivery_time(self.mileage)
+                                            if self.get_package_delivery_deadline(pkg, '9:00 AM') is False:
+                                                print("Package", pkg.package_id_number, "was delivered late.")
+                                            else:
+                                                print("Package", pkg.package_id_number, "was delivered on time.")
                             flag = True
                             break
                     if flag:
@@ -571,12 +592,12 @@ class Truck:
                                     delivered_packages.append(package.package_id_number)
                                     package.delivery_status = 'delivered'
                                     package_info.master_package_id_list.remove(package.package_id_number)
-                                if package.delivery_status is 'delivered':
-                                    package.delivery_time = self.set_delivery_time(self.mileage)
-                                if self.get_package_delivery_deadline(package, '9:00 AM') is False:
-                                    print("Package", package.package_id_number, "was delivered late.")
-                                else:
-                                    print("Package", package.package_id_number, "was delivered on time.")
+                                    if package.delivery_status is 'delivered':
+                                        package.delivery_time = self.set_delivery_time(self.mileage)
+                                        if self.get_package_delivery_deadline(package, '9:00 AM') is False:
+                                            print("Package", package.package_id_number, "was delivered late.")
+                                        else:
+                                            print("Package", package.package_id_number, "was delivered on time.")
                             package_list.remove(p)
                     break
             route.append(unvisited_queue.pop(unvisited_queue.index(adj_vertex)))
@@ -601,14 +622,14 @@ def find_address_list(packages_list):
     """
     B.1 Comment using pseudocode to show the logic of the algorithm applied to this software solution.
          // list of package address in memory
-         SET LIST address_bucket_list = []
+         SET EMPTY LIST address_bucket_list
 
          // check if package list exists
     O(1) IF BOOLEAN packages_list IS NOT EMPTY:
 
             // create a list to hold all memory addresses of packages associated with each package in the package list
             // argument and a list to hold all package ids associated with packages in the package list argument
-    O(N)    FOR EACH ADDRESS package IN LIST packages_list:
+    O(3N+1) FOR EACH ADDRESS package IN LIST packages_list:
                 SET INT package_id == INT package.package_id_number
 
                 APPEND ADDRESS package TO LIST address_bucket_list
@@ -621,8 +642,7 @@ def find_address_list(packages_list):
          // list for boolean use to flag that a package has been found and no packages are missed
          SET EMPTY LIST found_package_list
 
-    O(N) FOR EACH ADDRESS package IN LIST address_bucket_list
-    N = [1-16]??? is this the number of locations or packages in the list
+    O(3N+2) FOR EACH ADDRESS package IN LIST address_bucket_list
 
             // set and initialize variables street_address, address_id, package_id to associated package information
             SET STRING street_address = STRING package.delivery_address
@@ -631,17 +651,16 @@ def find_address_list(packages_list):
 
             // check if the address_id and street_address variables are not in same_delivery_address list then then
             // build the same_delivery_address and found_packages lists
-    O(1)    IF LIST [address_id, street_address] IS NOT IN LIST same_delivery_address
+O(3N+2)(N)  IF LIST [address_id, street_address] IS NOT IN LIST same_delivery_address
                 APPEND LIST [address_id, street_address] TO LIST same_delivery_address
 
-    O(N)        FOR LIST s IN same_delivery_address
-    N = [1-16]??? see above ???
+O(3N+2)(N)(N^3) FOR LIST s IN same_delivery_address
 
     O(1)        IF s[1] == street_address
-                    SET INT index == INDEX OF same_delivery_address
-    O(1)            IF INT package_id IS NOT IN LIST found_package_list:
+    O(N)            SET INT index == INDEX OF same_delivery_address
+    O(2N)           IF INT package_id IS NOT IN LIST found_package_list:
                         APPEND INT package_id TO LIST found_package_list
-                        INSERT MEMORY ADDRESS package TO same_delivery_address AT INDEX index
+    O(N)                INSERT MEMORY ADDRESS package TO same_delivery_address AT INDEX index
                     END IF
                 END IF
                 END FOR
@@ -650,7 +669,11 @@ def find_address_list(packages_list):
 
         RETURN same_delivery_address
 
-    BIG O Total => O(N) => O([1-16])
+    BIG O Total => O(N) => O(N^5) This is acceptable because all the lists are limited by the load capacity of the truck
+                                  and the length of the street address (N < 50).
+                                  Even if in the future trucks could hold 500 packages and the trucks delivered to
+                                  500 locations it would not cause the run time to reach more than seconds.
+
 
 
     B.2 Apply programming models to the scenario.
@@ -668,8 +691,8 @@ def find_address_list(packages_list):
     # check if package_list exists
     if packages_list:
 
-        # create a list to hold all memory addresses of packages associated with each package in the package list
-        # argument and a list to hold all package ids associated with packages in the package list argument
+        # limit N to load capacity by creating a list to hold all memory addresses of only the packages in the package list
+        # O(N); N = load capacity
         for p in packages_list:
             package_id = p.package_id_number
             address_bucket_list.append(p)
@@ -679,19 +702,25 @@ def find_address_list(packages_list):
     # find packages with the same delivery address
     same_delivery_address = []
     found_package_list = []
+    # O(N); N = load capacity
     for p in address_bucket_list:
         street_address = p.delivery_address
         address_id = p.address_id
         package_id = p.package_id_number
+        # O(N)(N); ALL N <= load capacity
         if [address_id, street_address] not in same_delivery_address:
             same_delivery_address.append([address_id, street_address, p])
+        # O(N)(N); load capacity
         for s in same_delivery_address:
             if s[1] == street_address:
+                # O(N)(N)(N)
                 index = same_delivery_address.index(s)
+                # O(N)(N)(N)(N); ALL N <= load capacity
                 if package_id not in found_package_list:
                     found_package_list.append(package_id)
-                    if p not in same_delivery_address[index]:
-                        same_delivery_address[index].append(p)
+            # O(N)(N)(N)(N); ALL N <= load capacity
+            if p not in same_delivery_address[index]:
+                same_delivery_address[index].append(p)
     return same_delivery_address
 
 
