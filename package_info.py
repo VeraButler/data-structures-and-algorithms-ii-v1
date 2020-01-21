@@ -1,20 +1,109 @@
 import csv
 from graph import address_hash
-
 pkgFile = './WGUPS Package File.csv'
 
-# https://stackoverflow.com/questions/34008527/csv-in-hashtable-then-calculate-sum
-# https://docs.python.org/3/library/csv.html
+"""
+PACKAGE DATA BIG O ANALYSIS
+
+BIG O NOTES:
+RESOURCE: https://wiki.python.org/moin/TimeComplexity
+Addition:
+INITIALIZE AND SET = one operation = 1 
+Multiplication:
+FOR = N operations if each element of data needs to be accessed
+FOR = LogN if it cuts down the amount of data that needs to be accessed (merge sort)
+WHILE = LogN because it potentially runs shorter than the length of all the data elements
+
+>>> PURPOSE: format the package data from the provided csv file into a hash table
+>>> FORMAT: HASH ID = package ID. All package id's must be unique to enter a new package into the system.
+
+------------------------------------------------------------------------------------------------------------------------
+BIG O       |                                           PSEUDOCODE                                                     |
+------------------------------------------------------------------------------------------------------------------------
 
 
-# format package table into a matrix
-# hash is the package_id at index 0 of each row
+O(1)........INITIALIZE AND SET EMPTY LIST pkg_tbl_hash
+
+            * *************************************************************** *
+            * OPEN is just accessing a pointer in memory allowing access to   *
+            * the data file as variable 'dt'.                                 *
+            * This does not require any iterations therefore it has a run     *
+            * time of O(1).                                                   *
+            * *************************************************************** *
+O(1)........OPEN pkg_tbl_hash AS pf:
+
+                * *************************************************************************************************** *
+                * Return a reader object which will iterate over lines in the given csvfile. csvfile can be any object*
+                * which supports the iterator protocol and returns a string each time its __next__() method is called *
+                * To iterate over each line means it must include a for loop like this example:                       *
+                *      for index in range(0, len(filtered), 1): add filtered row to reader[index]                     *
+                * index = N                                                                                           *
+                * len(filtered) = N                                                                                   *
+                * O(f(index) * f(filtered)) = N * N = O(N^2)                                                          *
+                * *************************************************************************************************** *
+O(N)............INITIALIZE AND SET LIST reader = csv.reader(pf)
+                INITIALIZE AND SET INT line_number = 0
+                INITIALIZE AND SET STRING delivery_status = 'at hub'
+            >>> skip first line of csv
+                pf.readline()
+O(8N)...........FOR EACH row IN reader
+                >>> PART E: set variables for insert function with corresponding column in each row
+                >>> delivery_address, delivery_deadline, delivery_city, delivery_state, 
+                >>> ...delivery_zip_code, package_weight, delivery_status
+                
+                >>> this is the unique hash id
+                    INITIALIZE AND SET INT package_id_number = INT(row[0])
+                    
+                    INITIALIZE AND SET STRING delivery_address = row[1]
+                    INITIALIZE AND SET STRING delivery_deadline = row[5]
+                    INITIALIZE AND SET delivery_city = row[2]
+                    INITIALIZE AND SET STRING delivery_state = row[3]
+                    INITIALIZE AND SET STRING delivery_zip_code = row[4]
+                    INITIALIZE AND SET STRING package_weight = row[6]
+                
+                    APPEND LIST [package_id_number, delivery_address, delivery_deadline, delivery_city, delivery_state,
+                             delivery_zip_code, package_weight, delivery_status, special_notes]
+                    TO LIST pkg_tbl_hash
+O(N)............END FOR
+                
+            >>> create global lists to use throughout the program
+                INITIALIZE AND SET LIST packages_with_delivery_deadlines = ["Delivery Deadlines"]
+                INITIALIZE AND SET LIST packages_without_delivery_deadlines = ["No Delivery Deadline"]
+                
+            >>> list of packages with special notes
+                INITIALIZE AND SET LIST packages_with_special_notes = ["Special Notes"]
+                INITIALIZE AND SET LIST naked_packages = ["No Special Needs"]
+                
+            >>> separate lists for packages with special notes
+                INITIALIZE AND SET LIST delayed_flight = ["Delayed Flights"]
+                INITIALIZE AND SET LIST grouped_deliveries = ["Grouped Deliveries"]
+                INITIALIZE AND SET LIST truck_one_only = ["Load on this Truck one only"]
+                INITIALIZE AND SET LIST truck_two_only = ["Load on this Truck two only"]
+                INITIALIZE AND SET LIST truck_three_only = ["Load on this Truck two only"]
+                INITIALIZE AND SET LIST wrong_address = ["Wrong Address"]
+                
+            >>> by zipcode
+                INITIALIZE AND SET LIST zipcode_sort = ["By Zipcode"]
+                
+            >>> used by Class Trucks in trucks.py to flag loaded, delivered, and undelivered packages
+                INITIALIZE AND SET LIST master_package_id_list = []
+                
+            >>> master package list - p1...pN memory addresses to be accessed in trucks.py
+            >>> _ flags other users that this list should not be changed unless absolutely necessary
+                INITIALIZE AND SET LIST _master_package_list = []
+
+
+
+* *************************************************************** *
+*                       COMMENT BLOCK                             *
+* *************************************************************** *
+"""
 # PART E: Develop a hash table
 pkg_tbl_hash = []
 with open(pkgFile) as pf:
     reader = csv.reader(pf)
     line_number = 0
-    delivery_status = 'en route'
+    delivery_status = 'at hub'
     pf.readline()
     for row in reader:
         # set variables for insert function
@@ -59,7 +148,6 @@ master_package_id_list = []
 master_package_list = []
 
 
-# inlcude package list to make this class work for future additions of packages
 class Package:
     # init class
     def __init__(self, package_list, package_key):
@@ -178,49 +266,28 @@ class Package:
                    self.delivery_status, self.loaded_on_truck, self.special_notes)
         return info
 
-
 # create all packages
-p1 = Package(pkg_tbl_hash, 1)
-p2 = Package(pkg_tbl_hash, 2)
-p3 = Package(pkg_tbl_hash, 3)
-p4 = Package(pkg_tbl_hash, 4)
-p5 = Package(pkg_tbl_hash, 5)
-p6 = Package(pkg_tbl_hash, 6)
-p7 = Package(pkg_tbl_hash, 7)
-p8 = Package(pkg_tbl_hash, 8)
-p9 = Package(pkg_tbl_hash, 9)
-p10 = Package(pkg_tbl_hash, 10)
-p11 = Package(pkg_tbl_hash, 11)
-p12 = Package(pkg_tbl_hash, 12)
-p13 = Package(pkg_tbl_hash, 13)
-p14 = Package(pkg_tbl_hash, 14)
-p15 = Package(pkg_tbl_hash, 15)
-p16 = Package(pkg_tbl_hash, 16)
-p17 = Package(pkg_tbl_hash, 17)
-p18 = Package(pkg_tbl_hash, 18)
-p19 = Package(pkg_tbl_hash, 19)
-p20 = Package(pkg_tbl_hash, 20)
-p21 = Package(pkg_tbl_hash, 21)
-p22 = Package(pkg_tbl_hash, 22)
-p23 = Package(pkg_tbl_hash, 23)
-p24 = Package(pkg_tbl_hash, 24)
-p25 = Package(pkg_tbl_hash, 25)
-p26 = Package(pkg_tbl_hash, 26)
-p27 = Package(pkg_tbl_hash, 27)
-p28 = Package(pkg_tbl_hash, 28)
-p29 = Package(pkg_tbl_hash, 29)
-p30 = Package(pkg_tbl_hash, 30)
-p31 = Package(pkg_tbl_hash, 31)
-p32 = Package(pkg_tbl_hash, 32)
-p33 = Package(pkg_tbl_hash, 33)
-p34 = Package(pkg_tbl_hash, 34)
-p35 = Package(pkg_tbl_hash, 35)
-p36 = Package(pkg_tbl_hash, 36)
-p37 = Package(pkg_tbl_hash, 37)
-p38 = Package(pkg_tbl_hash, 38)
-p39 = Package(pkg_tbl_hash, 39)
-p40 = Package(pkg_tbl_hash, 40)
+# O(N)
+def build_master_package_list(package_list):
+    for p in package_list:
+        package_id = p[0]
+        name = Package(package_list, package_id)
 
+
+def insert_new_package(package_id, delivery_address, delivery_deadline, delivery_city, delivery_zipcode,
+                       package_weight, delivery_status):
+    """
+    Insert package information into pkg_table hash
+    Create new Package object
+    """
+    # O(N) - N = length of master_package_id_list
+    if package_id not in master_package_id_list:
+        pkg_tbl_hash.append([package_id, delivery_address, delivery_deadline, delivery_city, delivery_state,
+                            delivery_zipcode, package_weight, delivery_status, 'no notes'])
+    name = Package(pkg_tbl_hash, package_id)
+
+
+build_master_package_list(pkg_tbl_hash)
 
 # # list for delivery deadlines
 # print(packages_with_delivery_deadlines)

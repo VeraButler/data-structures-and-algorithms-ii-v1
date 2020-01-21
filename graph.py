@@ -2,10 +2,9 @@ import csv
 """
 GRAPH BIG O ANALYSIS
 
-RESOURCE: https://wiki.python.org/moin/TimeComplexity
-
 NOTES:
-Addition:
+RESOURCE: https://wiki.python.org/moin/TimeComplexity
+Arithmetic: O(1)
 INITIALIZE AND SET = one operation = 1 
 Multiplication:
 FOR = N operations if each element of data needs to be accessed

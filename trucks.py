@@ -784,8 +784,9 @@ undelivered_packages = package_info.master_package_id_list
 undelivered_packages.insert(0, "undelivered")
 
 # SET package #9 to new address
-package_info.p9.delivery_address = '410 S State St'
-package_info.p9.address_id = 19
+print(package_info.master_package_list[8].info())
+package_info.master_package_list[8].delivery_address = '410 S State St'
+package_info.master_package_list[8].address_id = 19
 T2.leave_time_minutes = T1.minutes
 T2.load_truck(undelivered_packages)  # make sure no packages were missed
 # T2.load_truck(['wrong', 9])  # 1 package - 9
