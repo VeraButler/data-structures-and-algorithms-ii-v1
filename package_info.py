@@ -1,3 +1,4 @@
+# Vera Butler #000929765
 import csv
 from graph import address_hash
 pkgFile = './WGUPS Package File.csv'
@@ -96,10 +97,12 @@ O(N)
 # PART E: Develop a hash table
 pkg_tbl_hash = []
 with open(pkgFile) as pf:
+    # O(9N + M) where M is the size of the list appended to pkg_tbl_hash
     reader = csv.reader(pf)
     line_number = 0
     delivery_status = 'at hub'
     pf.readline()
+    # O(N)
     for row in reader:
         # set variables for insert function
         # delivery_address, delivery_deadline, delivery_city, delivery_state, delivery_zip_code, package_weight,
@@ -112,7 +115,6 @@ with open(pkgFile) as pf:
         delivery_zip_code = row[4]
         package_weight = row[6]
         special_notes = row[7]
-        # PART E: use an insertion function that takes the listed components and inserts them into the hash table
         pkg_tbl_hash.append([package_id_number, delivery_address, delivery_deadline, delivery_city, delivery_state,
                              delivery_zip_code, package_weight, delivery_status, special_notes])
 
@@ -333,6 +335,7 @@ class Package:
         self.loaded_on_truck = ''
 
         # find address id and set zipcode
+        # O(N)
         for a in address_hash:
             if a[1] == self.delivery_address:
                 self.address_id = a[0] - 1
@@ -358,8 +361,10 @@ class Package:
 
         if 'Can only be on truck' in s:
             # split special note for iterable string
+            # O(N)
             split = s.split()
             # iterate through string, check for int
+            # O(2N)
             for i in split:
                 if i.isdigit():
                     # initiate and set truck number
@@ -394,6 +399,7 @@ class Package:
         # add packages with no delivery deadline or special notes to a list
         #   the packages in this list will be added last to fill the remaining spots in the trucks
         no_deadline = False
+        # O(3N + 1)
         for i in packages_without_delivery_deadlines[1:]:
             if p_id == i[0]:
                 no_deadline = True
@@ -401,6 +407,7 @@ class Package:
         if no_deadline and not s:
             naked_packages.append(p_id)
 
+        # O(2N)
         if p_id not in master_package_id_list:
             master_package_id_list.append(p_id)
         else:
@@ -490,7 +497,7 @@ def build_master_package_list(package_list):
 
 # O(N)
 def insert_new_package(package_id, delivery_address, delivery_deadline, delivery_city, delivery_zipcode,
-                       package_weight, delivery_status):
+                       package_weight, delivery_status, special_notes):
     """
     :param package_id: integer, hash key for package
     :param delivery_address: string, street address
@@ -499,17 +506,18 @@ def insert_new_package(package_id, delivery_address, delivery_deadline, delivery
     :param delivery_zipcode: string, 5 digit zipcode
     :param package_weight: string, in integer format (no decimals)
     :param delivery_status: string, 3 options: 'at hub', 'in route', 'delivered'
+    :param: special_notes: string, any length
     :return: BOOLEAN
     """
     # O(N) - N = length of master_package_id_list
     if package_id not in master_package_id_list:
         pkg_tbl_hash.append([package_id, delivery_address, delivery_deadline, delivery_city, delivery_state,
-                            delivery_zipcode, package_weight, delivery_status, 'no notes'])
+                            delivery_zipcode, package_weight, delivery_status, special_notes])
     Package(pkg_tbl_hash, package_id)
 
     return True
 
-
+# O(1)
 def is_package_on_time(package, delivered):
     pd = package.delivery_deadline
 
@@ -532,6 +540,9 @@ def is_package_on_time(package, delivered):
 
 build_master_package_list(pkg_tbl_hash)
 
+# The package ID is unique; there are no collisions
+for p in pkg_tbl_hash:
+    print(p)
 
 
 

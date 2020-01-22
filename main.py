@@ -1,3 +1,4 @@
+# Vera Butler #000929765
 import package_info
 import trucks
 """
@@ -15,7 +16,7 @@ This function should return all information about each package, including delive
 def format_time(time):
     if 8 < len(time) < 7:
         print("INVALID ENTRY. PLEASE TRY AGAIN.")
-        look_up_package()
+        user_interface()
 
     meridies = time[-2:]
     st_split = time.split(':')
@@ -24,17 +25,17 @@ def format_time(time):
 
     if hour not in range(1, 24, 1):
         print("INVALID HOUR. PLEASE TRY AGAIN.")
-        look_up_package()
+        user_interface()
 
     if minutes not in range(0, 60, 1):
         print("INVALID MINUTES. PLEASE TRY AGAIN.")
-        look_up_package()
+        user_interface()
     # get minutes in decimal format
     minutes = minutes / 60
 
     if meridies.upper() not in ['AM', 'PM']:
         print("INVALID MERIDIES. PLEASE TRY AGAIN.")
-        look_up_package()
+        user_interface()
 
     if meridies.upper() == 'PM':
         if hour == 12:
@@ -148,29 +149,17 @@ def user_interface():
             delivery_zipcode = str(input("Enter the delivery zipcode."))
             package_weight = str(input("Enter the package weight."))
             delivery_status = str(input("Enter the delivery status."))
+            special_notes = str(input("Enter any special notes."))
             if package_info.insert_new_package(package_id, delivery_address, delivery_deadline, delivery_city,
-                                               delivery_zipcode, package_weight, delivery_status):
+                                               delivery_zipcode, package_weight, delivery_status, special_notes):
                 print("Package inserted successfully.", package_info.master_package_list[package_id - 1].info(),
-                      "Returning to main menu.")
+                      "\nReturning to main menu.")
                 user_interface()
             else:
                 print("Something went wrong. Please try again.")
                 user_interface()
 
-def check_for_late_packages():
-    for p in package_info.master_package_list:
-        if p.delivery_deadline and p.delivery_deadline < p.delivery_time:
-            late_packages_flag = False
-        else:
-            late_packages_flag = True
-            "THERE ARE LATE PACKAGES!"
-    if late_packages_flag:
-        ("Package", p.package_id_number, "was delivered late.")
-    else:
-        print("All packages were delivered ON TIME.")
-
-
-check_for_late_packages()
+# execute user_interface
 user_interface()
 
 

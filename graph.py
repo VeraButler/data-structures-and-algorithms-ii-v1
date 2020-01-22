@@ -1,3 +1,4 @@
+# Vera Butler #000929765
 import csv
 """
 GRAPH BIG O ANALYSIS
@@ -373,7 +374,6 @@ def build_adjacency_matrix():
 
         # remove vertex_id, location_id is assumed to be row_id
         del row[0]
-        print(row)
     return distances
 
     # convert all elements from string to float
