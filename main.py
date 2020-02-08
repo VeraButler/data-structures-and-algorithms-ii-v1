@@ -49,7 +49,7 @@ def format_time(time):
 
 def user_interface():
     get_user_need = -1
-    while get_user_need is not 'exit':
+    while get_user_need != 'exit':
         # Create a user menu with two inputs:
         #   1. to look up all information for a single package
         #   2. to look up all information for all packages
@@ -90,7 +90,7 @@ def user_interface():
             for p in package_info.master_package_list:
 
                 # IF the package was undelivered THEN PRINT to the user of undelivered package
-                if p.delivery_time is '':
+                if p.delivery_time == '':
                     print('Trucks failed to deliver this package.', p.info())
 
                 # format STRING package load time into INT hours and INT minutes
@@ -103,7 +103,7 @@ def user_interface():
                 #   THEN
                 #   APPEND INT package.package_id_number TO LIST status_list
                 #   SET CLASS PACKAGE DATA MEMBER STRING package.delivery_status = 'in route'
-                if p.load_time is not '' and (start_time >= load_time) and (delivery_time > end_time):
+                if p.load_time != '' and (start_time >= load_time) and (delivery_time > end_time):
                     status_list.append(p.package_id_number)
                     p.delivery_status = 'in route'
 
@@ -111,7 +111,7 @@ def user_interface():
                 #   THEN
                 #   APPEND INT package.package_id_number TO LIST status_list
                 #   SET CLASS PACKAGE DATA MEMBER STRING package.delivery_status = 'delivered'
-                if p.delivery_time is not '' and delivery_time < end_time:
+                if p.delivery_time != '' and delivery_time < end_time:
                     status_list.append(p.package_id_number)
                     p.delivery_status = 'delivered'
 

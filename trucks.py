@@ -225,7 +225,7 @@ class Truck:
         # O(N)
         package_info.master_package_id_list.remove(package.package_id_number)
         package.delivery_time = self.set_delivery_time(self.mileage)
-        if package.delivery_status is 'delivered':
+        if package.delivery_status == 'delivered':
             package.delivery_time = self.set_delivery_time(self.mileage)
             if package_info.is_package_on_time(package, package.delivery_time) is False:
                 print("Package", package.package_id_number, "was delivered late.")
