@@ -4,30 +4,28 @@ WGU Data Structures and Algorithms II Project
 ## Competencies
 ### Non-Linear Data Structures
 The graduate creates software applications that incorporate non-linear data structures for efficient and maintainable software.
-### Hashing Algorithms and Structures
 
+### Hashing Algorithms and Structures
 The graduate writes code using hashing techniques within an application to perform searching operations.
 
 ### Dictionaries and Sets
-
 The graduate incorporates dictionaries and sets in order to organize data into key-value pairs.
 
-###Self-Adjusting Data Structures
-
+### Self-Adjusting Data Structures
 The graduate evaluates the space and time complexity of self-adjusting data structures using big-O notation to improve 
 the performance of applications.
 
 ### Self-Adjusting Heuristics
-
 The graduate writes code using self-adjusting heuristics to improve the performance of applications.
 
 ### NP-Completeness and Turing Machines
-
 The graduate evaluates computational complexity theories in order to apply models to specific scenarios.
+
 
 ## Introduction
 Implement an algorithm to route delivery trucks that will allow you to meet all delivery deadlines while traveling the 
 least number of miles. Describe and justify the decisions you made while creating this program.
+
 
 ## Scenario
 The Western Governors University Parcel Service (WGUPS) needs to determine the best route and delivery distribution for 
@@ -40,15 +38,11 @@ attached “WGUPS Package File,” will be delivered on time with the least numb
 total of all trucks. The specific delivery locations are shown on the attached “Salt Lake City Downtown Map” and 
 distances to each location are given in the attached “WGUPS Distance Table.”
 
-
-
 While you work on this assessment, take into consideration the specific delivery time expected for each package and the 
 possibility that the delivery requirements—including the expected delivery time—can be changed by management at any time 
 and at any point along the chosen route. In addition, you should keep in mind that the supervisor should be able to see, 
 at assigned points, the progress of each truck and its packages by any of the variables listed in the 
 “WGUPS Package File,” including what has been delivered and what time the delivery occurred.
-
-
 
 The intent is to use this solution (program) for this specific location and to use the same program in many cities in 
 each state where WGU has a presence. As such, you will need to include detailed comments, following the 
@@ -78,8 +72,6 @@ writing your program.
     •  The package ID is unique; there are no collisions.
     
     •  No further assumptions exist or are allowed.
-
-
 
 ## REQUIREMENTS
 Your submission must be your original work. No more than a combined total of 30% of the submission and no more than a 
@@ -118,7 +110,6 @@ specified in the scenario.
     2.  Include comments at each  block of code to explain the process and flow of the coding.
 
 
-
 #### D.  Identify a data structure that can be used with your chosen algorithm to store the package data.
 
     1.  Explain how your data structure includes the relationship between the data points you are storing.
@@ -126,8 +117,6 @@ specified in the scenario.
     Note: Do NOT use any existing data structures. You must design, write, implement, and debug all code that you turn in 
     for this assessment. Code downloaded from the internet or acquired from another student or any other source may not be 
     submitted and will result in automatic failure of this assessment.
-
-
 
 #### E.  Develop a hash table, without using any additional libraries or classes, with an insertion function that takes the following components as input and inserts the components into the hash table:
 
@@ -164,7 +153,6 @@ specified in the scenario.
     •  delivery status (e.g., delivered, in route)
 
 
-
 #### G.  Provide an interface for the insert and look-up functions to view the status of any package at any time. This function should return all information about each package, including delivery status.
 
     1.  Provide screenshots to show package status of all packages at a time between 8:35 a.m. and 9:25 a.m.
@@ -174,11 +162,11 @@ specified in the scenario.
     3.  Provide screenshots to show package status of all packages at a time between 12:03 p.m. and 1:12 p.m.
 
 
-
 #### H.  Run your code and provide screenshots to capture the complete execution of your code.
 
-### Section 2: Annotations
 
+
+### Section 2: Annotations
 
 #### I.  Justify your choice of algorithm by doing the following:
 
@@ -191,10 +179,7 @@ specified in the scenario.
 
         a.  Describe how each  algorithm identified in part I3 is different from the algorithm you chose to use in the solution.
 
-
 #### J.  Describe what you would do differently if you did this project again.
-
-
 
 #### K.  Justify your choice of data structure by doing the following:
 
