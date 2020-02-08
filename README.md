@@ -1,5 +1,9 @@
 # WGUPS Package Delivery Solution
 WGU Data Structures and Algorithms II Project
+## To Use
+Run main.py 
+
+The user interface is a Command Line Interface (CLI). When the program is run it outputs information about the delivery of the trucks and packages. To look up more information about the packages follow the instructions in the Main Menu of the CLI. Package information can be looked up within specific time frames.
 
 ## Competencies
 ### Non-Linear Data Structures
